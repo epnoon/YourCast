@@ -3,6 +3,14 @@
 
     <string name="app_name">YourCast</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+	<string name="new_game">New Game</string>
+	<string name="watch_game">Watch Game</string>
+	<string name="home_team">Home Team</string>
+	<string name="away_team">Away Team</string>
+	<string name="cancel">Cancel</string>
+	<string name="time">Time</string>
+    <color name="green">#458B00</color>
+    <color name="orange">#FF6103</color>
+    <color name="black">#000000</color>
 
 </resources>
