@@ -1,16 +1,17 @@
 package edu.umich.yourcast;
 
-import android.app.DialogFragment;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
-import android.support.v4.app.FragmentActivity;
 
 public class MainActivity extends FragmentActivity
 	implements NewGameDialog.NewGameDialogListener {
 
+  public final static String HOME_TEAM_NAME = "edu.umich.yourcast.home_team_name";
+  
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -36,7 +37,10 @@ public class MainActivity extends FragmentActivity
 	@Override
 	public void onDialogPositiveClick(NewGameDialog dialog) {
 		// TODO Auto-generated method stub
-		
+	  Intent intent = new Intent(this, FieldActivity.class);
+	  String homeTeam = dialog.getHomeTeam();
+	  intent.putExtra(HOME_TEAM_NAME, homeTeam);
+    startActivity(intent);
 		Toast.makeText(getApplicationContext(), "Home Team: " + dialog.getHomeTeam(), Toast.LENGTH_SHORT).show(); 
 	}
 
