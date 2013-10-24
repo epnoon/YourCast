@@ -13,7 +13,7 @@
         android:layout_marginRight="4dp"
         android:layout_marginTop="16dp"
         android:hint="@string/home_team"
-        android:inputType="text" />
+        android:inputType="textCapSentences" />
 
     <EditText
         android:id="@+id/away_team"
@@ -25,7 +25,7 @@
         android:layout_marginTop="4dp"
         android:fontFamily="sans-serif"
         android:hint="@string/away_team"
-        android:inputType="text" />
+        android:inputType="textCapSentences" />
     
         <EditText
         android:id="@+id/time"

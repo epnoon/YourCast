@@ -1,16 +1,17 @@
 package edu.umich.yourcast;
 
-import android.app.DialogFragment;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
-import android.support.v4.app.FragmentActivity;
 
 public class MainActivity extends FragmentActivity
 	implements NewGameDialog.NewGameDialogListener {
 
+  public final static String MATCH_INFO = "edu.umich.yourcast.match_info";
+  
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -28,16 +29,14 @@ public class MainActivity extends FragmentActivity
 		NewGameDialog dialog = new NewGameDialog(); 
 		dialog.show(getFragmentManager(), "NewGameDialog");	
 		
-	//	Intent i = new Intent(this, FieldActivity.class); 
-	//	startActivity(i); 	
-		
 	}
 
 	@Override
 	public void onDialogPositiveClick(NewGameDialog dialog) {
 		// TODO Auto-generated method stub
-		
-		Toast.makeText(getApplicationContext(), "Home Team: " + dialog.getHomeTeam(), Toast.LENGTH_SHORT).show(); 
+	  Intent intent = new Intent(this, FieldActivity.class);
+	  intent.putExtra(MATCH_INFO, dialog.getMatchInfo());
+	  startActivity(intent);
 	}
 
 }

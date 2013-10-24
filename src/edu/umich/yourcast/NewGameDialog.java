@@ -1,5 +1,8 @@
 package edu.umich.yourcast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,10 +16,22 @@ import android.widget.EditText;
 
 public class NewGameDialog extends DialogFragment {
 	private View v; 
-	public String getHomeTeam() {
+	public String getMatchInfo() {
 		EditText home_team = (EditText) v.findViewById(R.id.home_team); 
+		EditText away_team = (EditText) v.findViewById(R.id.away_team); 
+		EditText time = (EditText) v.findViewById(R.id.time); 
+		JSONObject object = new JSONObject(); 
+		try {
+			object.put("home team", home_team.getText().toString());
+			object.put("away team", away_team.getText().toString()); 
+			object.put("time", time.getText().toString()); 
+			
+		} catch (JSONException e) {
+			e.printStackTrace(); 
+		}
+
 		Log.d("MYMY", home_team.getText().toString()); 
-		return home_team.getText().toString();
+		return object.toString();
 	}
 	
 	@Override
