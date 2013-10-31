@@ -25,7 +25,7 @@ public class MainActivity extends FragmentActivity
 		return true;
 	}
 	
-	public void submitButton(View view) {
+	public void newGameButtonClick(View view) {
 		NewGameDialog dialog = new NewGameDialog(); 
 		dialog.show(getFragmentManager(), "NewGameDialog");	
 		

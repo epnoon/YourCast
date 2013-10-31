@@ -8,7 +8,12 @@
 	<string name="home_team">Home Team</string>
 	<string name="away_team">Away Team</string>
 	<string name="cancel">Cancel</string>
+	<string name="back">Back</string>
 	<string name="time">Time</string>
+	<string name="game_info_title">Game Info</string>
+	<string name="game_score_label">Game Score</string>
+	<string name="game_time_label">Game Time</string>
+	<string name="dummy">Dummy Text</string>
     <color name="green">#458B00</color>
     <color name="orange">#FF6103</color>
     <color name="black">#000000</color>

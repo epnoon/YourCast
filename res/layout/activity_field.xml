@@ -27,6 +27,16 @@
         android:layout_height="fill_parent"
         android:layout_weight="1"
         android:background="@drawable/rugby_field" >
+        
+        <ImageButton
+        android:id="@+id/infoButton"
+        android:layout_width="30dip"
+        android:layout_height="30dip"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/info_icon"
+        android:onClick="infoButtonClick" />
+        
     </RelativeLayout>
-
+    
 </LinearLayout>
