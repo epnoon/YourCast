@@ -18,25 +18,33 @@
             android:id="@+id/gametitle"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:textSize = "40sp" 
-            android:gravity="center"/>
+            android:gravity="center"
+            android:textSize="40sp" />
     </LinearLayout>
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="1"
-        android:background="@drawable/rugby_field" >
-        
-        <ImageButton
-        android:id="@+id/infoButton"
-        android:layout_width="30dip"
-        android:layout_height="30dip"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:background="@drawable/info_icon"
-        android:onClick="infoButtonClick" />
-        
+        android:layout_weight="1" >
+
+        <RugbyView
+            android:id="@+id/fieldimage"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:padding="0dip"
+            android:layout_margin="0dip"
+            android:adjustViewBounds="true"
+            android:src="@drawable/rugby_field" />
+
+            <ImageButton
+                android:id="@+id/infoButton"
+                android:layout_width="30dip"
+                android:layout_height="30dip"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/info_icon"
+                android:onClick="infoButtonClick" />
+
     </RelativeLayout>
-    
+
 </LinearLayout>
