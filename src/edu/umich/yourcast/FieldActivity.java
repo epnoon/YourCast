@@ -1,5 +1,6 @@
 package edu.umich.yourcast;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -16,6 +17,8 @@ import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnLongClickListener;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,7 +26,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 @SuppressWarnings("unused")
-public class FieldActivity extends Activity {
+public class FieldActivity extends Activity implements
+	EventPromptDialog.EventPromptDialogListener {
+	float touchX, touchY; 
+	float imageX, imageY; 
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -46,9 +53,43 @@ public class FieldActivity extends Activity {
 		TextView t = (TextView) findViewById(R.id.gametitle);
 		t.setText(output);
 
-		// ImageView field = (ImageView) findViewById(R.id.fieldimage);
+		ImageView field = (ImageView) findViewById(R.id.fieldimage);
 
+		
+		field.setOnLongClickListener(new OnLongClickListener() {
+
+			@Override
+			public boolean onLongClick(View v) {
+				imageX = touchX;
+				imageY = touchY; 
+				showEventPromptDialog(); 
+				
+				// Toast.makeText(getApplicationContext(), "X: " + String.valueOf(touchX/imageX) + " Y: " + String.valueOf(touchY/imageY),
+				// 		Toast.LENGTH_SHORT).show();
+				return true;
+			}
+
+		});
+
+		field.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				ImageView field = (ImageView) findViewById(R.id.fieldimage);
+				touchX = event.getX(); 
+				touchY = event.getY(); 
+				return false;
+			}
+		});
 		Log.d("MYMY", output);
+	}
+	
+	public void showEventPromptDialog() {
+		ArrayList<String> s = new ArrayList<String>(); 
+		s.add("Try");
+		s.add("Lineout");
+		s.add("Scrum"); 
+		EventPromptDialog dialog = EventPromptDialog.create(s);
+		dialog.show(getFragmentManager(), "EventPromptDialog");
 	}
 
 	// TODO Dummy method to put in current game Info,
@@ -68,6 +109,15 @@ public class FieldActivity extends Activity {
 	public void infoButtonClick(View view) {
 		GameInfoDialog dialog = GameInfoDialog.create(getGameInfo());
 		dialog.show(getFragmentManager(), "GameInfoDialog");
+	}
+
+	public void onClick(String s) {
+		// TODO Auto-generated method stub
+		Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show(); 	
+		Log.d("MYMY", String.valueOf(touchX)); 
+		Log.d("MYMY", String.valueOf(touchY)); 
+		Log.d("MYMY", String.valueOf(imageX)); 
+		Log.d("MYMY", String.valueOf(imageY)); 
 	}
 
 }
