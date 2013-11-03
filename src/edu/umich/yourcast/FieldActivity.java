@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -22,6 +23,7 @@ import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,7 +55,7 @@ public class FieldActivity extends Activity implements
 		TextView t = (TextView) findViewById(R.id.gametitle);
 		t.setText(output);
 
-		ImageView field = (ImageView) findViewById(R.id.fieldimage);
+		View field = (View) findViewById(R.id.fieldimage);
 
 		
 		field.setOnLongClickListener(new OnLongClickListener() {
@@ -74,7 +76,7 @@ public class FieldActivity extends Activity implements
 		field.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-				ImageView field = (ImageView) findViewById(R.id.fieldimage);
+				View field = (View) findViewById(R.id.fieldimage);
 				touchX = event.getX(); 
 				touchY = event.getY(); 
 				return false;
@@ -113,6 +115,17 @@ public class FieldActivity extends Activity implements
 
 	public void onClick(String s) {
 		// TODO Auto-generated method stub
+		RelativeLayout rl = (RelativeLayout) findViewById(R.id.fieldimage);
+		ImageView iv;
+		RelativeLayout.LayoutParams params;
+
+		iv = new ImageView(this);
+		iv.setBackgroundColor(Color.RED);
+		params = new RelativeLayout.LayoutParams(40, 40);
+		params.leftMargin = (int) touchX - 20;
+		params.topMargin = (int) touchY - 20;
+		rl.addView(iv, params);
+		
 		Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show(); 	
 		Log.d("MYMY", String.valueOf(touchX)); 
 		Log.d("MYMY", String.valueOf(touchY)); 

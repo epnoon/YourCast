@@ -25,7 +25,7 @@ public class NewGameDialog extends DialogFragment {
 		EditText home_team = (EditText) v.findViewById(R.id.home_team);
 		EditText away_team = (EditText) v.findViewById(R.id.away_team);
 		EditText time = (EditText) v.findViewById(R.id.time);
-		
+
 		JSONObject object = new JSONObject();
 		try {
 			object.put("home team", home_team.getText().toString());
@@ -72,7 +72,8 @@ public class NewGameDialog extends DialogFragment {
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
-								mListener.onDialogPositiveClick(NewGameDialog.this);
+								mListener
+										.onDialogPositiveClick(NewGameDialog.this);
 							}
 						})
 				.setNegativeButton(R.string.cancel,

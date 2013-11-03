@@ -14,7 +14,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/textView1"
-        android:icon="@drawable/soccer_ball"
         android:layout_centerHorizontal="true"
         android:onClick="newGameButtonClick"
         android:text="@string/new_game"
@@ -37,7 +36,7 @@
         android:layout_above="@+id/textView1"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="20dp"
-        android:src="@drawable/soccer_ball" />
+        android:src="@drawable/logo" />
 
     <TextView
         android:id="@+id/textView1"
