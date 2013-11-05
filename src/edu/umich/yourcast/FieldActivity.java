@@ -1,5 +1,7 @@
 package edu.umich.yourcast;
 
+
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -55,7 +57,6 @@ public class FieldActivity extends Activity implements
 
 		ImageView field = (ImageView) findViewById(R.id.fieldimage);
 
-		
 		field.setOnLongClickListener(new OnLongClickListener() {
 
 			@Override
@@ -81,6 +82,17 @@ public class FieldActivity extends Activity implements
 			}
 		});
 		Log.d("MYMY", output);
+		
+		Log.d("MYMY", "Connecting to server");
+		Toast.makeText(getApplicationContext(), "Connecting", Toast.LENGTH_SHORT).show();
+		EventListener connection = new EventListener(getApplicationContext());
+		try {
+			InetAddress addr = InetAddress.getByName(getString(R.string.server_addr));
+			connection.Connect(getString(R.string.server_addr), "bla");
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 	
 	public void showEventPromptDialog() {
