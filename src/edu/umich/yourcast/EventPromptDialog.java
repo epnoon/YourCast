@@ -2,35 +2,33 @@ package edu.umich.yourcast;
 
 import java.util.ArrayList;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import edu.umich.yourcast.NewGameDialog.NewGameDialogListener;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
-import android.widget.Toast;
+import android.util.Log;
 
 public class EventPromptDialog extends DialogFragment {
-	
-	private EventPromptDialogListener mListener; 
-	
-	public final static String EVENT_INFO = "edu.umich.yourcast.event_info";
-	public CharSequence[] c; 
-	
-	public static EventPromptDialog create(ArrayList<String> s) {
+
+	private EventPromptDialogListener mListener;
+
+	public final static String EVENT_OPTIONS = "edu.umich.yourcast.event_options";
+	public final static String EVENT_TITLE = "edu.umich.yourcast.event_title";
+	public CharSequence[] c;
+	public String title;
+
+	public static EventPromptDialog create(ArrayList<String> options,
+			String title) {
 		EventPromptDialog f = new EventPromptDialog();
 		Bundle args = new Bundle();
-		args.putStringArrayList(EVENT_INFO, s);
+		args.putStringArrayList(EVENT_OPTIONS, options);
+		args.putString(EVENT_TITLE, title);
 		f.setArguments(args);
 		return f;
 	}
-	
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -45,31 +43,38 @@ public class EventPromptDialog extends DialogFragment {
 					+ " must implement EventPromptDialogListener");
 		}
 	}
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+
 		// Retrieve the arguments that were supplied by create()
-		String[] s = getArguments().getStringArrayList(EVENT_INFO).toArray(new String[1]);
-		c = (CharSequence[]) s; 
+		Bundle args = getArguments(); 
+		// Log.d("MYMY", args.toString()); 
+		String[] s = args.getStringArrayList(EVENT_OPTIONS)
+				.toArray(new String[1]);
+		c = (CharSequence[]) s;
+
+		title = getArguments().getString(EVENT_TITLE);
 
 	}
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
-	    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-	    builder.setTitle("Event")
-	           .setItems(c, new DialogInterface.OnClickListener() {
-	               public void onClick(DialogInterface dialog, int which) {
-	            	   mListener.onClick(c[which].toString()); 
-	               }
-	    });
-	    return builder.create();
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setTitle(title)
+			.setItems(c,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						mListener.onClick(c[which].toString());
+					}
+				});
+		return builder.create();
 	}
 
 	public interface EventPromptDialogListener {
 		public void onClick(String s);
 	}
-	
+
 }

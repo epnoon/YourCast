@@ -23,17 +23,17 @@
     </LinearLayout>
 
     <RelativeLayout
+            android:id="@+id/fieldimage"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="1" >
+        android:layout_weight="1" 
+        android:background="@drawable/rugby_field">
 
         <ImageView
-            android:id="@+id/fieldimage"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:padding="0dip"
             android:layout_margin="0dip"
-            android:adjustViewBounds="true"
             android:src="@drawable/rugby_field" />
 
             <ImageButton
