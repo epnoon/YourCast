@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,10 +30,12 @@ import android.widget.Toast;
 
 @SuppressWarnings("unused")
 public class FieldActivity extends Activity implements
-	EventPromptDialog.EventPromptDialogListener {
-	float touchX, touchY; 
-	float imageX, imageY; 
-	
+		EventPromptDialog.EventPromptDialogListener {
+	float touchX, touchY;
+	float imageX, imageY;
+	SportEventTree eventTree;
+	String home, away, time;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -40,7 +43,6 @@ public class FieldActivity extends Activity implements
 		Intent intent = getIntent();
 		String json = intent.getStringExtra(MainActivity.MATCH_INFO);
 		JSONObject match_info;
-		String home = null, away = null, time = null;
 		try {
 			match_info = new JSONObject(json);
 			home = (String) match_info.getString("home team");
@@ -50,6 +52,11 @@ public class FieldActivity extends Activity implements
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		if (home.isEmpty()) {
+			home = "Michigan"; 
+			away = "Ohio St."; 
+		}
 
 		String output = home + " vs. " + away;
 		TextView t = (TextView) findViewById(R.id.gametitle);
@@ -57,17 +64,18 @@ public class FieldActivity extends Activity implements
 
 		View field = (View) findViewById(R.id.fieldimage);
 
-		
 		field.setOnLongClickListener(new OnLongClickListener() {
 
 			@Override
 			public boolean onLongClick(View v) {
 				imageX = touchX;
-				imageY = touchY; 
-				showEventPromptDialog(); 
-				
-				// Toast.makeText(getApplicationContext(), "X: " + String.valueOf(touchX/imageX) + " Y: " + String.valueOf(touchY/imageY),
-				// 		Toast.LENGTH_SHORT).show();
+				imageY = touchY;
+				showEventPromptDialog();
+
+				// Toast.makeText(getApplicationContext(), "X: " +
+				// String.valueOf(touchX/imageX) + " Y: " +
+				// String.valueOf(touchY/imageY),
+				// Toast.LENGTH_SHORT).show();
 				return true;
 			}
 
@@ -77,20 +85,18 @@ public class FieldActivity extends Activity implements
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				View field = (View) findViewById(R.id.fieldimage);
-				touchX = event.getX(); 
-				touchY = event.getY(); 
+				touchX = event.getX();
+				touchY = event.getY();
 				return false;
 			}
 		});
 		Log.d("MYMY", output);
 	}
-	
+
 	public void showEventPromptDialog() {
-		ArrayList<String> s = new ArrayList<String>(); 
-		s.add("Try");
-		s.add("Lineout");
-		s.add("Scrum"); 
-		EventPromptDialog dialog = EventPromptDialog.create(s);
+		eventTree = new RugbyEventTree(home, away);
+		EventPromptDialog dialog = EventPromptDialog
+				.create(eventTree.options(), eventTree.title());
 		dialog.show(getFragmentManager(), "EventPromptDialog");
 	}
 
@@ -115,22 +121,34 @@ public class FieldActivity extends Activity implements
 
 	public void onClick(String s) {
 		// TODO Auto-generated method stub
-		RelativeLayout rl = (RelativeLayout) findViewById(R.id.fieldimage);
-		ImageView iv;
-		RelativeLayout.LayoutParams params;
+		eventTree.next(s); 
+		if (!eventTree.isDone()) {
+			EventPromptDialog dialog = 
+					EventPromptDialog.create(eventTree.options(), eventTree.title());
+			dialog.show(getFragmentManager(), "EventPromptDialog");
+		} else {
+			RelativeLayout rl = (RelativeLayout) findViewById(R.id.fieldimage);
+			ImageView iv;
+			RelativeLayout.LayoutParams params;
 
-		iv = new ImageView(this);
-		iv.setBackgroundColor(Color.RED);
-		params = new RelativeLayout.LayoutParams(40, 40);
-		params.leftMargin = (int) touchX - 20;
-		params.topMargin = (int) touchY - 20;
-		rl.addView(iv, params);
-		
-		Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show(); 	
-		Log.d("MYMY", String.valueOf(touchX)); 
-		Log.d("MYMY", String.valueOf(touchY)); 
-		Log.d("MYMY", String.valueOf(imageX)); 
-		Log.d("MYMY", String.valueOf(imageY)); 
+			iv = new ImageView(this);
+			iv.setImageResource(R.drawable.orangecircle);
+			// iv.setBackgroundColor(Color.RED);
+			params = new RelativeLayout.LayoutParams(40, 40);
+			params.leftMargin = (int) touchX - 20;
+			params.topMargin = (int) touchY - 20;
+			rl.addView(iv, params);
+
+			Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT)
+					.show();
+			/*
+			Log.d("MYMY", String.valueOf(touchX));
+			Log.d("MYMY", String.valueOf(touchY));
+			Log.d("MYMY", String.valueOf(imageX));
+			Log.d("MYMY", String.valueOf(imageY));
+			
+			*/
+		}
 	}
 
 }
