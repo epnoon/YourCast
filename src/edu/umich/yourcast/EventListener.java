@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.content.ContextWrapper;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import edu.umich.yourcast.Ycpacket.*;
 
@@ -26,8 +27,9 @@ public class EventListener {
 	private static int uid;
 	private static int session;
 	public static int PORT = 30303;
-	private static InetAddress address;
+	private static InetAddress address = null;
 	private Context ctx;
+	public int eventid=0;
 	
 	public EventListener(Context c) {
 		this.ctx = c;
@@ -36,11 +38,23 @@ public class EventListener {
 	public int Connect (String addr, String name) {
 		try {
 			new ConnectTask().execute(addr, name);
+			return 0;
 		}
 		catch (Exception e){
+			e.printStackTrace();
 			return 1;
 		}
-		return 0;
+	}
+	
+	public int broadcast (String message) {
+		try {
+			new BroadcastTask().execute(message);
+			return 0;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return 1;
+		}
 	}
 		
 	public int poll(int session_num, int event_id) {
@@ -95,6 +109,72 @@ public class EventListener {
 		return 0;
 	}
 	
+	public class BroadcastTask extends AsyncTask<String, Boolean, Integer> {
+		protected Integer doInBackground(String... params) {
+			// Make sure we are connected
+			if (address == null || socket == null) {
+				Log.d("MYMY", "No connection");
+				return 1;
+			}
+			
+			// Create event
+			Event event = Event.newBuilder()
+				.setType(1)
+				.setId(eventid++)
+				.setMsg(params[0])
+				.build();
+			
+			// Create packet
+			Packet request = Packet.newBuilder()
+				.setType(PTYPE_BROADCAST)
+				.setUserId(uid)
+				.setEvent(event)
+				.build();
+			byte[] serialized_request = request.toByteArray();
+			int request_len = serialized_request.length;
+			DatagramPacket packet = new DatagramPacket(serialized_request, request_len, address, PORT);
+			
+			// Construct recv buffer
+			byte[] buffer = new byte[1024];
+			int buflen = 1024;
+			DatagramPacket recvpacket = new DatagramPacket(buffer, buflen);
+			
+			// Send packet
+			int result = sendForResponse(packet, recvpacket, 3);
+			if (result == 1) {
+				return 1;
+			}
+			
+			// Parse the buffered data
+			Packet response;
+			try {
+				String packet_data = new String(recvpacket.getData(), 0, recvpacket.getLength());
+				response = Packet.parseFrom(packet_data.getBytes());
+			}
+			catch (Exception e){
+				Log.e("MYMY" ,Log.getStackTraceString(e));
+				return 1;
+			}
+			
+			// Confirm server received event
+			if (response.getType().equals(PTYPE_CONFIRM)) {
+				return 0;
+			}
+			
+			return 1;
+		}
+		protected void onPostExecute(Integer result){
+			if (result == 0) {
+				Toast.makeText(ctx, "Event broadcast", Toast.LENGTH_SHORT);
+				Log.d("MYMY", "event broadcasted");
+			}
+			else {
+				Toast.makeText(ctx, "Event broadcast failed", Toast.LENGTH_SHORT);
+				Log.d("MYMY", "event broadcast failed");
+			}
+		}
+	}
+	
 	public class ConnectTask extends AsyncTask<String, Boolean, Integer> {
 		protected Integer doInBackground(String... params) {
 			// Convert addr to InetAddress
@@ -111,7 +191,7 @@ public class EventListener {
 					socket.setSoTimeout(5000);
 				}
 				catch (Exception e) {
-					Log.e("MYMY" ,Log.getStackTraceString(e));
+					Log.e("MYMY", Log.getStackTraceString(e));
 					return 1;
 				}
 			}
@@ -139,8 +219,8 @@ public class EventListener {
 			// Parse the buffered data
 			Packet response;
 			try {
-				String packet_data = new String(recvpacket.getData(), 0, recvpacket.getLength());
-				response = Packet.parseFrom(packet_data.getBytes());
+				ByteString packet_data = ByteString.copyFrom(recvpacket.getData(), 0, recvpacket.getLength());
+				response = Packet.parseFrom(packet_data);
 			}
 			catch (Exception e){
 				Log.e("MYMY" ,Log.getStackTraceString(e));
@@ -170,6 +250,10 @@ public class EventListener {
 			request_len = serialized_request.length;
 			packet = new DatagramPacket(serialized_request, request_len, address, PORT);
 			
+			// Construct recv buffer
+			//buffer = new byte[1024];
+			recvpacket = new DatagramPacket(buffer, buflen);
+			
 			// Send packet
 			result = sendForResponse(packet, recvpacket, 3);
 			if (result == 1) {
@@ -178,8 +262,8 @@ public class EventListener {
 			
 			// Parse the buffered data
 			try {
-				String packet_data = new String(recvpacket.getData(), 0, recvpacket.getLength());
-				response = Packet.parseFrom(packet_data.getBytes());
+				ByteString packet_data = ByteString.copyFrom(recvpacket.getData(), 0, recvpacket.getLength());
+				response = Packet.parseFrom(packet_data);
 			}
 			catch (Exception e){
 				Log.e("MYMY" ,Log.getStackTraceString(e));
@@ -192,6 +276,8 @@ public class EventListener {
 					Log.d("MYMY", "No session num in packet");
 					return 1;
 				}
+				
+				Log.d("MYMY", "Session num "+Integer.toString(response.getSessionNum()));
 				session = response.getSessionNum();
 				return 0;
 			}
@@ -201,7 +287,6 @@ public class EventListener {
 			}
 		}
 		protected void onPostExecute(Integer result){
-			Log.d("MYMY", "Post Ex");
 			if (result == 0) {
 				Toast.makeText(ctx, "Session created", Toast.LENGTH_SHORT).show();
 			}

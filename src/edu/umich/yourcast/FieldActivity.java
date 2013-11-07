@@ -36,7 +36,9 @@ public class FieldActivity extends Activity implements
 	float touchX, touchY;
 	float imageX, imageY;
 	SportEventTree eventTree;
+	String eventString = "";
 	String home, away, time;
+	EventListener connection;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +98,7 @@ public class FieldActivity extends Activity implements
 		
 		Log.d("MYMY", "Connecting to server");
 		Toast.makeText(getApplicationContext(), "Connecting", Toast.LENGTH_SHORT).show();
-		EventListener connection = new EventListener(getApplicationContext());
+		connection = new EventListener(getApplicationContext());
 		try {
 			InetAddress addr = InetAddress.getByName(getString(R.string.server_addr));
 			connection.Connect(getString(R.string.server_addr), "bla");
@@ -133,7 +135,8 @@ public class FieldActivity extends Activity implements
 	}
 
 	public void onClick(String s) {
-		// TODO Auto-generated method stub
+		eventString += s + " - ";
+		
 		eventTree.next(s); 
 		if (!eventTree.isDone()) {
 			EventPromptDialog dialog = 
@@ -151,7 +154,11 @@ public class FieldActivity extends Activity implements
 			params.leftMargin = (int) touchX - 20;
 			params.topMargin = (int) touchY - 20;
 			rl.addView(iv, params);
-
+			
+			connection.broadcast(eventString);
+			Log.d("MYMY", "Sending: "+eventString);
+			eventString = "";
+			
 			Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT)
 					.show();
 			/*
