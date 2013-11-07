@@ -17,5 +17,6 @@
     <color name="green">#458B00</color>
     <color name="orange">#FF6103</color>
     <color name="black">#000000</color>
+    <string name="server_addr">10.0.0.2</string>
 
 </resources>

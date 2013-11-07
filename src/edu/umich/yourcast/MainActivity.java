@@ -6,6 +6,8 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
+import android.util.Log;
+import java.net.*;
 
 public class MainActivity extends FragmentActivity implements
 		NewGameDialog.NewGameDialogListener {
@@ -32,7 +34,6 @@ public class MainActivity extends FragmentActivity implements
 
 	@Override
 	public void onDialogPositiveClick(NewGameDialog dialog) {
-		// TODO Auto-generated method stub
 		Intent intent = new Intent(this, FieldActivity.class);
 		intent.putExtra(MATCH_INFO, dialog.getMatchInfo());
 		startActivity(intent);
