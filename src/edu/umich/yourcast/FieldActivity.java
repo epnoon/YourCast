@@ -16,14 +16,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,8 +38,11 @@ public class FieldActivity extends Activity implements
 		EventPromptDialog.EventPromptDialogListener {
 	float touchX, touchY;
 	float imageX, imageY;
+	Sport sport;
 	SportEventTree eventTree;
-	String home, away, time;
+	String home_team, away_team, time, sport_name;
+	ArrayList<String> currentWords;
+	int homeScore = 0, awayScore = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,31 +53,72 @@ public class FieldActivity extends Activity implements
 		JSONObject match_info;
 		try {
 			match_info = new JSONObject(json);
-			home = (String) match_info.getString("home team");
-			away = (String) match_info.getString("away team");
+			sport_name = (String) match_info.getString("sport");
+			home_team = (String) match_info.getString("home team");
+			away_team = (String) match_info.getString("away team");
 			time = (String) match_info.getString("time");
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		if (home.isEmpty()) {
-			home = "Michigan"; 
-			away = "Ohio St."; 
+		if (sport_name.equals(NewGameDialog.RUGBY)) {
+			sport = new RugbySport();
+		} else {
+			assert false; 
+		}
+		
+		// Testing. 
+		if (home_team.isEmpty()) {
+			home_team = "Michigan";
+			away_team = "Ohio St.";
 		}
 
-		String output = home + " vs. " + away;
+		LinearLayout linearLayout = (LinearLayout) findViewById(R.id.titlebar); 
+		ImageButton clock = (ImageButton) new ImageButton(this); 
+		LayoutParams layoutParams = 
+				new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT); 
+		layoutParams.gravity = Gravity.RIGHT; 
+		
+		clock.setImageResource(R.drawable.start_triangle); 
+		// clock.setScaleType(ImageView.ScaleType.FIT_END); 
+		clock.setAdjustViewBounds(true); 
+		clock.setBackgroundColor(0); 
+		clock.setLayoutParams(layoutParams); 
+		clock.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				Toast.makeText(getApplicationContext(), "Started Clock",
+						Toast.LENGTH_SHORT).show();
+			}		
+		}); 
+		
+		/*android:id="@+id/mainImageView"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:src="@drawable/mylogo_250px60px"
+		        android:scaleType="fitEnd"
+		        android:adjustViewBounds="true"
+		*/
+		linearLayout.addView(clock); 
+		
+		
+		// Set title.
+		/*String output = home_team + " vs. " + away_team;
 		TextView t = (TextView) findViewById(R.id.gametitle);
 		t.setText(output);
+		*/
 
-		View field = (View) findViewById(R.id.fieldimage);
+		ImageView fieldView = (ImageView) findViewById(R.id.fieldimage);
+		fieldView.setImageResource(sport.getPictureID());
 
-		field.setOnLongClickListener(new OnLongClickListener() {
+		fieldView.setOnLongClickListener(new OnLongClickListener() {
 
 			@Override
 			public boolean onLongClick(View v) {
 				imageX = touchX;
 				imageY = touchY;
+				currentWords = new ArrayList<String>();
 				showEventPromptDialog();
 
 				// Toast.makeText(getApplicationContext(), "X: " +
@@ -81,7 +130,7 @@ public class FieldActivity extends Activity implements
 
 		});
 
-		field.setOnTouchListener(new OnTouchListener() {
+		fieldView.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				View field = (View) findViewById(R.id.fieldimage);
@@ -90,13 +139,12 @@ public class FieldActivity extends Activity implements
 				return false;
 			}
 		});
-		Log.d("MYMY", output);
 	}
 
 	public void showEventPromptDialog() {
-		eventTree = new RugbyEventTree(home, away);
-		EventPromptDialog dialog = EventPromptDialog
-				.create(eventTree.options(), eventTree.title());
+		eventTree = sport.getSportEventTree(home_team, away_team);
+		EventPromptDialog dialog = EventPromptDialog.create(
+				eventTree.options(), eventTree.title());
 		dialog.show(getFragmentManager(), "EventPromptDialog");
 	}
 
@@ -105,12 +153,11 @@ public class FieldActivity extends Activity implements
 	public String getGameInfo() {
 		JSONObject object = new JSONObject();
 		try {
-			object.put("game score", "1-1");
+			object.put("Score: ", homeScore + " - " + awayScore);
 			object.put("game time", "90:00");
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		Log.d("MYMY", "getGameInfo");
 		return object.toString();
 	}
 
@@ -121,13 +168,14 @@ public class FieldActivity extends Activity implements
 
 	public void onClick(String s) {
 		// TODO Auto-generated method stub
-		eventTree.next(s); 
+		eventTree.next(s);
+		currentWords.add(s);
 		if (!eventTree.isDone()) {
-			EventPromptDialog dialog = 
-					EventPromptDialog.create(eventTree.options(), eventTree.title());
+			EventPromptDialog dialog = EventPromptDialog.create(
+					eventTree.options(), eventTree.title());
 			dialog.show(getFragmentManager(), "EventPromptDialog");
 		} else {
-			RelativeLayout rl = (RelativeLayout) findViewById(R.id.fieldimage);
+			RelativeLayout rl = (RelativeLayout) findViewById(R.id.fieldlayout);
 			ImageView iv;
 			RelativeLayout.LayoutParams params;
 
@@ -139,15 +187,17 @@ public class FieldActivity extends Activity implements
 			params.topMargin = (int) touchY - 20;
 			rl.addView(iv, params);
 
-			Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT)
-					.show();
-			/*
-			Log.d("MYMY", String.valueOf(touchX));
-			Log.d("MYMY", String.valueOf(touchY));
-			Log.d("MYMY", String.valueOf(imageX));
-			Log.d("MYMY", String.valueOf(imageY));
-			
-			*/
+			String liveCast = eventTree.createText(currentWords);
+			if (eventTree.getHomePoints(currentWords) > 0
+					|| eventTree.getAwayPoints(currentWords) > 0) {
+				homeScore += eventTree.getHomePoints(currentWords);
+				awayScore += eventTree.getAwayPoints(currentWords);
+				liveCast += " " + home_team + " " + homeScore + " - "
+						+ away_team + " " + awayScore + ".";
+			}
+
+			Toast.makeText(getApplicationContext(), liveCast,
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 

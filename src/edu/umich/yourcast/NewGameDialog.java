@@ -15,7 +15,8 @@ import android.view.View;
 import android.widget.EditText;
 
 public class NewGameDialog extends DialogFragment {
-
+	public final static String RUGBY = "edu.umich.yourcast.rugby";
+	
 	// Use this instance of the interface to deliver action events
 	private NewGameDialogListener mListener;
 
@@ -28,6 +29,7 @@ public class NewGameDialog extends DialogFragment {
 
 		JSONObject object = new JSONObject();
 		try {
+			object.put("sport", RUGBY); 
 			object.put("home team", home_team.getText().toString());
 			object.put("away team", away_team.getText().toString());
 			object.put("time", time.getText().toString());

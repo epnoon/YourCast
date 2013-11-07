@@ -13,28 +13,20 @@
         android:layout_weight="7"
         android:background="@android:color/black"
         android:orientation="horizontal" >
-
-        <TextView
-            android:id="@+id/gametitle"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:gravity="center"
-            android:textSize="40sp" />
     </LinearLayout>
 
     <RelativeLayout
-            android:id="@+id/fieldimage"
+            android:id="@+id/fieldlayout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="1" 
-        android:background="@drawable/rugby_field">
+        android:layout_weight="1" >
 
         <ImageView
+            android:id="@+id/fieldimage"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:padding="0dip"
-            android:layout_margin="0dip"
-            android:src="@drawable/rugby_field" />
+            android:layout_margin="0dip" />
 
             <ImageButton
                 android:id="@+id/infoButton"
