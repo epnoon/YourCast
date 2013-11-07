@@ -62,4 +62,8 @@ public abstract class SportEventTree {
 	public boolean isDone() {
 		return current == null; 
 	}
+
+	abstract public int getHomePoints(ArrayList<String> selections); 
+	
+	abstract public int getAwayPoints(ArrayList<String> selections); 
 }
