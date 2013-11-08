@@ -69,6 +69,7 @@ public class NewGameDialog extends DialogFragment {
 		// Pass null as the parent view because its going in the dialog layout
 		v = inflater.inflate(R.layout.dialog_new_game, null);
 		builder.setView(v)
+			.setTitle(R.string.enter_game_info)
 				// Add action buttons
 				.setPositiveButton(R.string.new_game,
 						new DialogInterface.OnClickListener() {

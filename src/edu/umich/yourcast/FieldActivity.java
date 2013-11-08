@@ -49,7 +49,7 @@ public class FieldActivity extends Activity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_field);
+		setContentView(R.layout.broadcaster_interface);
 		Intent intent = getIntent();
 		String json = intent.getStringExtra(MainActivity.MATCH_INFO);
 		JSONObject match_info;

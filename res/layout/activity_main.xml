@@ -25,6 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/button1"
         android:layout_centerHorizontal="true"
+        android:onClick="watchGameButtonClick"
         android:layout_marginBottom="19dp"
         android:text="@string/watch_game"
         android:textSize="@dimen/button_font" />
