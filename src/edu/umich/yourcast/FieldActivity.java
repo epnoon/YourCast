@@ -42,6 +42,8 @@ public class FieldActivity extends Activity implements
 	float imageX, imageY;
 	Sport sport;
 	SportEventTree eventTree;
+	String eventString = "";
+	EventListener connection;
 	String home_team, away_team, time, sport_name;
 	ArrayList<String> currentWords;
 	int homeScore = 0, awayScore = 0;
@@ -144,7 +146,7 @@ public class FieldActivity extends Activity implements
 		
 		Log.d("MYMY", "Connecting to server");
 		Toast.makeText(getApplicationContext(), "Connecting", Toast.LENGTH_SHORT).show();
-		EventListener connection = new EventListener(getApplicationContext());
+		connection = new EventListener(getApplicationContext());
 		try {
 			InetAddress addr = InetAddress.getByName(getString(R.string.server_addr));
 			connection.Connect(getString(R.string.server_addr), "bla");
@@ -180,9 +182,10 @@ public class FieldActivity extends Activity implements
 	}
 
 	public void onClick(String s) {
-		// TODO Auto-generated method stub
+		eventString += s + " - ";
 		eventTree.next(s);
 		currentWords.add(s);
+
 		if (!eventTree.isDone()) {
 			EventPromptDialog dialog = EventPromptDialog.create(
 					eventTree.options(), eventTree.title());
@@ -200,6 +203,10 @@ public class FieldActivity extends Activity implements
 			params.topMargin = (int) touchY - 20;
 			rl.addView(iv, params);
 
+			connection.broadcast(eventString);
+			Log.d("MYMY", "Sending: "+eventString);
+			eventString = "";
+
 			String liveCast = eventTree.createText(currentWords);
 			if (eventTree.getHomePoints(currentWords) > 0
 					|| eventTree.getAwayPoints(currentWords) > 0) {
@@ -211,6 +218,7 @@ public class FieldActivity extends Activity implements
 
 			Toast.makeText(getApplicationContext(), liveCast,
 					Toast.LENGTH_SHORT).show();
+
 		}
 	}
 

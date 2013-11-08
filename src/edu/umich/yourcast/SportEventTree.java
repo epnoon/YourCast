@@ -13,7 +13,7 @@ public abstract class SportEventTree {
 		
 		// Team Tree. 
 		teamTree = new HashMap<String, SportTreeNode>(); 
-		teamTree.put(away_team, null); 
+		teamTree.put(away_team, null);
 		teamTree.put(home_team, null); 
 		
 		// Yes or No Tree.  
