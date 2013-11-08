@@ -1,13 +1,16 @@
 package edu.umich.yourcast;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
 import java.net.*;
+import android.view.View.OnClickListener;
 
 import edu.umich.yourcast.WatchGameDialog.WatchGameDialogListener;
 
@@ -21,6 +24,37 @@ public class MainActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+	      // Font path
+        String fontPath = "fonts/LaPerutaFLF-Bold.ttf";
+ 
+        // text view label
+        TextView newGame = (TextView) findViewById(R.id.newgamebutton);
+        TextView watchGame = (TextView) findViewById(R.id.watchgamebutton);
+        
+ 
+        // Loading Font Face
+        Typeface tf = Typeface.createFromAsset(getAssets(), fontPath);
+ 
+        // Applying font
+        newGame.setTypeface(tf);
+        watchGame.setTypeface(tf);
+        
+        newGame.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				newGameButtonClick(view); 
+			}    	
+        }); 
+        
+        watchGame.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				watchGameButtonClick(view); 
+			}    	
+        }); 
+        
+        
 	}
 
 	@Override
