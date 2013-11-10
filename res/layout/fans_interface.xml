@@ -26,12 +26,12 @@
         android:layout_weight="3"
         android:background="@android:color/black" />
 
-    <LinearLayout
+    <ListView
+        android:id="@+id/listview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="4"
-        android:background="#AA66CC"
-        android:orientation="horizontal" >
-    </LinearLayout>
+        android:background="#000000">
+    </ListView>
 
 </LinearLayout>

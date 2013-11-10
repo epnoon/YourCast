@@ -10,6 +10,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import edu.umich.yourcast.RugbySport.RugbyTimer;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -47,6 +49,7 @@ public class FieldActivity extends Activity implements
 	String home_team, away_team, time, sport_name;
 	ArrayList<String> currentWords;
 	int homeScore = 0, awayScore = 0;
+	RugbyTimer timer; 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,22 +79,33 @@ public class FieldActivity extends Activity implements
 		if (home_team.isEmpty()) {
 			home_team = "Michigan";
 			away_team = "Ohio St.";
+			time = "80"; 
 		}
 
 		LinearLayout linearLayout = (LinearLayout) findViewById(R.id.titlebar); 
+		TextView textview = (TextView) new TextView(this); 
+		textview.setText("Not Started"); 
+		textview.setId(100); 
+		linearLayout.addView(textview); 
+		
+		
 		ImageButton clock = (ImageButton) new ImageButton(this); 
 		LayoutParams layoutParams = 
 				new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT); 
 		layoutParams.gravity = Gravity.RIGHT; 
 		
 		clock.setImageResource(R.drawable.start_triangle); 
-		// clock.setScaleType(ImageView.ScaleType.FIT_END); 
 		clock.setAdjustViewBounds(true); 
 		clock.setBackgroundColor(0); 
 		clock.setLayoutParams(layoutParams); 
 		clock.setOnClickListener(new OnClickListener() {
 			@Override
-			public void onClick(View arg0) {
+			public void onClick(View view) {
+				
+				timer = sport.getClock(time); 
+				TextView t = (TextView) findViewById(100); 
+				timer.setTextView(t); 
+				timer.start(); 
 				Toast.makeText(getApplicationContext(), "Started Clock",
 						Toast.LENGTH_SHORT).show();
 			}		

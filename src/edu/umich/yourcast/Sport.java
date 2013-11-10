@@ -1,5 +1,6 @@
 package edu.umich.yourcast;
 
+import edu.umich.yourcast.RugbySport.RugbyTimer;
 import android.os.CountDownTimer;
 
 public abstract class Sport {
@@ -14,5 +15,5 @@ public abstract class Sport {
 	
 	abstract public SportEventTree getSportEventTree(String home_team, String away_team); 
 	
-	abstract public CountDownTimer getClock(); 
+	abstract public RugbyTimer getClock(String time); 
 }
