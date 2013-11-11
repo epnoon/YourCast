@@ -12,6 +12,7 @@
 	<string name="cancel">Cancel</string>
 	<string name="back">Back</string>
 	<string name="time">Time</string>
+	<string name="not_started">Game Not Started</string>
 	<string name="game_info_title">Game Info</string>
 	<string name="game_score_label">Game Score</string>
 	<string name="game_time_label">Game Time</string>

@@ -27,12 +27,14 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
+
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -81,23 +83,27 @@ public class FieldActivity extends Activity implements
 			away_team = "Ohio St.";
 			time = "80"; 
 		}
-
-		LinearLayout linearLayout = (LinearLayout) findViewById(R.id.titlebar); 
+		
+		// Set title.
+		TextView opponents = (TextView) findViewById(R.id.opponents);
+		opponents.setText(home_team + " vs. " + away_team);
+		
+		/*LinearLayout linearLayout2 = (LinearLayout) findViewById(R.id.timebar);
 		TextView textview = (TextView) new TextView(this); 
 		textview.setText("Not Started"); 
 		textview.setId(100); 
-		linearLayout.addView(textview); 
+		linearLayout2.addView(textview);*/ 
 		
 		
-		ImageButton clock = (ImageButton) new ImageButton(this); 
+		/*ImageButton clock = (ImageButton) new ImageButton(this); 
 		LayoutParams layoutParams = 
-				new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT); 
+				new LayoutParams(150, 150); 
 		layoutParams.gravity = Gravity.RIGHT; 
 		
 		clock.setImageResource(R.drawable.start_triangle); 
 		clock.setAdjustViewBounds(true); 
 		clock.setBackgroundColor(0); 
-		clock.setLayoutParams(layoutParams); 
+		clock.setLayoutParams(layoutParams);
 		clock.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -109,7 +115,7 @@ public class FieldActivity extends Activity implements
 				Toast.makeText(getApplicationContext(), "Started Clock",
 						Toast.LENGTH_SHORT).show();
 			}		
-		}); 
+		}); */
 		
 		/*android:id="@+id/mainImageView"
 		        android:layout_width="match_parent"
@@ -118,15 +124,8 @@ public class FieldActivity extends Activity implements
 		        android:scaleType="fitEnd"
 		        android:adjustViewBounds="true"
 		*/
-		linearLayout.addView(clock); 
+		//linearLayout2.addView(clock);  
 		
-		
-		// Set title.
-		/*String output = home_team + " vs. " + away_team;
-		TextView t = (TextView) findViewById(R.id.gametitle);
-		t.setText(output);
-		*/
-
 		ImageView fieldView = (ImageView) findViewById(R.id.fieldimage);
 		fieldView.setImageResource(sport.getPictureID());
 
@@ -168,6 +167,15 @@ public class FieldActivity extends Activity implements
 		catch (Exception e){
 			e.printStackTrace();
 		}
+	}
+	
+	// Set time text and clock button
+	public void timeButtonClick(View view) {
+	    	timer = sport.getClock(time); 
+		TextView t = (TextView) findViewById(R.id.timeText); 
+		timer.setTextView(t); 
+		timer.start(); 
+		Toast.makeText(getApplicationContext(), "Started Clock", Toast.LENGTH_SHORT).show();
 	}
 
 	public void showEventPromptDialog() {
