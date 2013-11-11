@@ -21,11 +21,8 @@ public class RugbySport extends Sport {
 	public RugbyTimer getClock(String t) {
 		// TODO Auto-generated method stub
 		long second = 1000; 
-		Log.d("MYMY", t); 
-		long time = Long.getLong(t) * 1000; 
-		
-		// return new RugbyTimer(time, second); 
-		return null; 
+		long time = Long.parseLong(t) * 1000; 
+		return new RugbyTimer(time, second); 
 	}
 	
 	public class RugbyTimer extends CountDownTimer {
