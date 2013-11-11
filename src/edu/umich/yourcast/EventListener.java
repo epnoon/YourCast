@@ -308,7 +308,7 @@ public class EventListener {
 		private int x_coord;
 		private int y_coord;
 		String event_msg;
-		public void BroadcastTask(String msg, int x, int y) {
+		public BroadcastTask(String msg, int x, int y) {
 			x_coord = x;
 			y_coord = y;
 			event_msg = msg;

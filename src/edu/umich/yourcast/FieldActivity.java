@@ -235,7 +235,7 @@ public class FieldActivity extends Activity implements
 
 			Toast.makeText(getApplicationContext(), liveCast,
 					Toast.LENGTH_SHORT).show();
-			connection.broadcast(liveCast);
+			connection.broadcast(liveCast, (int)touchX, (int)touchY);
 
 		}
 	}
