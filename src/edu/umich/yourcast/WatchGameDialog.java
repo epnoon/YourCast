@@ -1,5 +1,10 @@
 package edu.umich.yourcast;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
 import edu.umich.yourcast.NewGameDialog.NewGameDialogListener;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -10,13 +15,36 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
+import android.util.Log;
+import org.json.*;
 
 public class WatchGameDialog extends DialogFragment {
 	// private String gamesList;
-	private CharSequence[] items = { "123", "234", "345" };
+	private CharSequence[] items;
+	public int[] sessions;
 	private WatchGameDialogListener mListener;
 
-	// Override the Fragment.onAttach() method to instantiate the
+	public void setGames(String json_sessions) {
+		try {
+			JSONObject json = new JSONObject(json_sessions);
+			Iterator it = json.keys();
+			sessions = new int[json.length()];
+			items = new CharSequence[json.length()];
+			int x=0;
+			while (it.hasNext()){
+				String key = (String) it.next();
+				Log.d("MYMY", "Key "+key);
+				sessions[x] = json.getInt(key);
+				items[x++] = (CharSequence) key;
+			}
+		}
+		catch (JSONException e){
+			Log.d("MYMY", "Illegal JSON");
+		}
+		
+	}
+	
+	// Override the Fragment.onAttach() method to instantiate thes
 	// NoticeDialogListener
 	@Override
 	public void onAttach(Activity activity) {
@@ -32,11 +60,16 @@ public class WatchGameDialog extends DialogFragment {
 					+ " must implement WatchGameDialogListener");
 		}
 	}
-
+	
+	public int getSession(int x){
+		return sessions[x];
+	}
+	
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
+		
+		CharSequence[] charseq_items;
 		builder.setTitle(R.string.live_games)
 				.setItems(items, new DialogInterface.OnClickListener() {
 					@Override
@@ -46,7 +79,10 @@ public class WatchGameDialog extends DialogFragment {
 						 * Toast.makeText(getActivity(), items[id],
 						 * Toast.LENGTH_SHORT).show();
 						 */
-						mListener.onSelectedGameClick(WatchGameDialog.this);
+						Log.d("MYMY", "id"+Integer.toString(id));
+						int session_num = sessions[id];
+						mListener.onSelectedGameClick(WatchGameDialog.this, session_num);
+						
 					}
 				})
 				.setNegativeButton(R.string.cancel,
@@ -59,7 +95,11 @@ public class WatchGameDialog extends DialogFragment {
 	}
 
 	public interface WatchGameDialogListener {
-		public void onSelectedGameClick(WatchGameDialog dialog);
+		public void onSelectedGameClick(WatchGameDialog dialog, int id);
+	}
+
+	public String getMatchInfo() {
+		return null;
 	}
 
 }

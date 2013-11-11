@@ -71,7 +71,14 @@ public class MainActivity extends FragmentActivity implements
 
 	public void watchGameButtonClick(View view) {
 		WatchGameDialog dialog = new WatchGameDialog();
-		dialog.show(getFragmentManager(), "WatchGameDialog");
+		
+		// Get list of games
+		EventListener connection = new EventListener();
+		connection.setAddr(getString(R.string.server_addr));
+		connection.setFragment(getFragmentManager());
+		connection.get_sessions(dialog);
+
+		//dialog.show(getFragmentManager(), "WatchGameDialog");
 	}
 
 	@Override
@@ -82,9 +89,9 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	@Override
-	public void onSelectedGameClick(WatchGameDialog dialog) {
+	public void onSelectedGameClick(WatchGameDialog dialog, int id) {
 		Intent intent = new Intent(this, FansFieldActivity.class);
-		// intent.putExtra(MATCH_INFO, dialog.getMatchInfo());
+		intent.putExtra("sessionNum", id);
 		startActivity(intent);
 	}
 
