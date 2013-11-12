@@ -33,6 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/margin_left"
             android:text="@string/not_started"
             android:textSize="20sp" />
 
@@ -42,6 +43,7 @@
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/margin_right"
             android:adjustViewBounds="true"
             android:onClick="timeButtonClick"
             android:padding="3dip"
