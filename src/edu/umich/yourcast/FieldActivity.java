@@ -7,9 +7,7 @@ import java.util.TimerTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-
-import edu.umich.yourcast.RugbySport.RugbyTimer;
+import org.json.JSONObject; 
 
 import android.app.Activity;
 import android.content.Intent;
@@ -49,7 +47,7 @@ public class FieldActivity extends Activity implements
 	String home_team, away_team, time, sport_name;
 	ArrayList<String> currentWords;
 	int homeScore = 0, awayScore = 0;
-	RugbyTimer timer;
+	SportTimer timer;
 	boolean timer_running = false; 
 
 	@Override
@@ -82,6 +80,10 @@ public class FieldActivity extends Activity implements
 			away_team = "Ohio St.";
 			time = "80";
 		}
+		
+		TextView clock = (TextView) findViewById(R.id.timeText);
+		ImageView clockButton = (ImageView) findViewById(R.id.timeButton); 
+		timer = sport.getClock(time, clock, clockButton); 
 
 		// Set title.
 		TextView opponents = (TextView) findViewById(R.id.opponents);
@@ -130,17 +132,11 @@ public class FieldActivity extends Activity implements
 	// Set time text and clock button
 	public void timeButtonClick(View view) {
 		if (timer_running) {
-
+			timer.pause(); 
 		} else {
-
-			TextView t = (TextView) findViewById(R.id.timeText);
-			ImageButton i = (ImageButton) findViewById(R.id.timeButton); 
-			timer = sport.getClock(time, t, i);
 			timer.start();
 		}
-
-		// Toast.makeText(getApplicationContext(), "Started Clock",
-		// Toast.LENGTH_SHORT).show();
+		timer_running = !timer_running; 
 	}
 
 	public void showEventPromptDialog() {
@@ -205,7 +201,7 @@ public class FieldActivity extends Activity implements
 
 			Toast.makeText(getApplicationContext(), liveCast,
 					Toast.LENGTH_SHORT).show();
-			connection.broadcast(liveCast, (int) touchX, (int) touchY);
+			connection.broadcast(liveCast, 1, 2);
 
 		}
 	}

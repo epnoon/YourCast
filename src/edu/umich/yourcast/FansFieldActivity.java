@@ -46,9 +46,9 @@ public class FansFieldActivity extends Activity {
 		pollTimer.scheduleAtFixedRate(new pollTimerTask(), 0, 5000);
     }
     
-    protected void onPause() {
+    /*protected void onPause() {
     	pollTimer.cancel();
-    }
+    }*/
     
     public class pollTimerTask extends TimerTask {
     	private Context ctx;

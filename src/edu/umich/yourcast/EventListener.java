@@ -325,8 +325,8 @@ public class EventListener {
 				.setType(1)
 				.setId(eventid++)
 				.setMsg(params[0])
-				.addData(x_coord)
-				.addData(y_coord)
+				//.addData(x_coord)
+				//.addData(y_coord)
 				.build();
 			
 			// Create packet
