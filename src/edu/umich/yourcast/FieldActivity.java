@@ -2,36 +2,20 @@ package edu.umich.yourcast;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.HashMap;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject; 
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.Gravity;
-import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
-
-import android.view.Window;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
-
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +28,7 @@ public class FieldActivity extends Activity implements
 	Sport sport;
 	SportEventTree eventTree;
 	EventListener connection;
+	HashMap<String, String> game_info;
 	String home_team, away_team, time, sport_name;
 	ArrayList<String> currentWords;
 	int homeScore = 0, awayScore = 0;
@@ -147,10 +132,15 @@ public class FieldActivity extends Activity implements
 	}
 
 	public String getGameInfo() {
+	    	game_info = new HashMap<String, String>();
+	    	game_info.put("Home Team", home_team);
+	    	game_info.put("Away Team", away_team);
+	    	game_info.put("Game Score", homeScore + " - " + awayScore);
+	    	game_info.put("Game Time", time);
+	    	
 		JSONObject object = new JSONObject();
 		try {
-			object.put("Score: ", homeScore + " - " + awayScore);
-			object.put("game time", timer.getCurrentTime() + "'");
+			object = JsonHelper.toJSON(game_info);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
