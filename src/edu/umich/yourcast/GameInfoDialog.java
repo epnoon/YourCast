@@ -1,5 +1,7 @@
 package edu.umich.yourcast;
 
+import java.util.HashMap;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -10,6 +12,9 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
 public class GameInfoDialog extends DialogFragment {
@@ -32,20 +37,17 @@ public class GameInfoDialog extends DialogFragment {
 		return f;
 	}
 
-	private String game_score;
-	private String game_time;
+	private HashMap<String, String> game_info = new HashMap<String, String>();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		// Retrieve the arguments that were supplied by create()
-		String json = getArguments().getString(GAME_INFO);
-		JSONObject game_info;
+		JSONObject object;
 		try {
-			game_info = new JSONObject(json);
-			game_score = (String) game_info.getString("game score");
-			game_time = (String) game_info.getString("game time");
+		    	object = new JSONObject(getArguments().getString(GAME_INFO));
+		    	game_info = JsonHelper.toMap(object);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -64,10 +66,33 @@ public class GameInfoDialog extends DialogFragment {
 		// Pass null as the parent view because its going in the dialog layout
 		v = inflater.inflate(R.layout.dialog_game_info, null);
 
-		TextView tv = (TextView) v.findViewById(R.id.game_score);
-		tv.setText(game_score);
-		tv = (TextView) v.findViewById(R.id.game_time);
-		tv.setText(game_time);
+		// Set dialog content
+		LinearLayout contentLayout = (LinearLayout) v.findViewById(R.id.dialog_content);
+		
+		for (HashMap.Entry<String, String> entry : game_info.entrySet()) {
+		    RelativeLayout relativeLayout = new RelativeLayout(getActivity());
+	            String key = entry.getKey();
+	            String value = entry.getValue();
+	            
+	            TextView textview1 = (TextView) new TextView(getActivity());
+	            textview1.setText(key);
+	            textview1.setTextSize(20);
+	            RelativeLayout.LayoutParams layoutParams1 = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+	            layoutParams1.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+	            textview1.setLayoutParams(layoutParams1);
+	            relativeLayout.addView(textview1);
+	            
+	            TextView textview2 = (TextView) new TextView(getActivity());
+	            textview2.setText(value);
+	            textview2.setTextSize(20);
+	            RelativeLayout.LayoutParams layoutParams2 = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+	            layoutParams2.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+	            textview2.setLayoutParams(layoutParams2);
+	            relativeLayout.addView(textview2);
+	            
+	            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+	            contentLayout.addView(relativeLayout, params);
+	        } 
 
 		builder.setView(v)
 		// Add action buttons

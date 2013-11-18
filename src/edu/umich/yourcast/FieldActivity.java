@@ -1,40 +1,21 @@
 package edu.umich.yourcast;
 
-
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.HashMap;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import edu.umich.yourcast.RugbySport.RugbyTimer;
-
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.Gravity;
-import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
-
-import android.view.Window;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
-
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,10 +28,12 @@ public class FieldActivity extends Activity implements
 	Sport sport;
 	SportEventTree eventTree;
 	EventListener connection;
+	HashMap<String, String> game_info;
 	String home_team, away_team, time, sport_name;
 	ArrayList<String> currentWords;
 	int homeScore = 0, awayScore = 0;
-	RugbyTimer timer; 
+	SportTimer timer;
+	boolean timer_running = false; 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,62 +52,28 @@ public class FieldActivity extends Activity implements
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		if (sport_name.equals(NewGameDialog.RUGBY)) {
 			sport = new RugbySport();
 		} else {
-			assert false; 
+			assert false;
 		}
-		
-		// Testing. 
+
+		// Testing.
 		if (home_team.isEmpty()) {
 			home_team = "Michigan";
 			away_team = "Ohio St.";
-			time = "80"; 
+			time = "80";
 		}
 		
+		TextView clock = (TextView) findViewById(R.id.timeText);
+		ImageView clockButton = (ImageView) findViewById(R.id.timeButton); 
+		timer = sport.getClock(time, clock, clockButton); 
+
 		// Set title.
 		TextView opponents = (TextView) findViewById(R.id.opponents);
 		opponents.setText(home_team + " vs. " + away_team);
-		
-		/*LinearLayout linearLayout2 = (LinearLayout) findViewById(R.id.timebar);
-		TextView textview = (TextView) new TextView(this); 
-		textview.setText("Not Started"); 
-		textview.setId(100); 
-		linearLayout2.addView(textview);*/ 
-		
-		
-		/*ImageButton clock = (ImageButton) new ImageButton(this); 
-		LayoutParams layoutParams = 
-				new LayoutParams(150, 150); 
-		layoutParams.gravity = Gravity.RIGHT; 
-		
-		clock.setImageResource(R.drawable.start_triangle); 
-		clock.setAdjustViewBounds(true); 
-		clock.setBackgroundColor(0); 
-		clock.setLayoutParams(layoutParams);
-		clock.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				
-				timer = sport.getClock(time); 
-				TextView t = (TextView) findViewById(100); 
-				timer.setTextView(t); 
-				timer.start(); 
-				Toast.makeText(getApplicationContext(), "Started Clock",
-						Toast.LENGTH_SHORT).show();
-			}		
-		}); */
-		
-		/*android:id="@+id/mainImageView"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:src="@drawable/mylogo_250px60px"
-		        android:scaleType="fitEnd"
-		        android:adjustViewBounds="true"
-		*/
-		//linearLayout2.addView(clock);  
-		
+
 		ImageView fieldView = (ImageView) findViewById(R.id.fieldimage);
 		fieldView.setImageResource(sport.getPictureID());
 
@@ -136,11 +85,6 @@ public class FieldActivity extends Activity implements
 				imageY = touchY;
 				currentWords = new ArrayList<String>();
 				showEventPromptDialog();
-
-				// Toast.makeText(getApplicationContext(), "X: " +
-				// String.valueOf(touchX/imageX) + " Y: " +
-				// String.valueOf(touchY/imageY),
-				// Toast.LENGTH_SHORT).show();
 				return true;
 			}
 
@@ -155,27 +99,28 @@ public class FieldActivity extends Activity implements
 				return false;
 			}
 		});
-		
+
 		Log.d("MYMY", "Connecting to server");
-		Toast.makeText(getApplicationContext(), "Connecting", Toast.LENGTH_SHORT).show();
+		Toast.makeText(getApplicationContext(), "Connecting",
+				Toast.LENGTH_SHORT).show();
 		connection = new EventListener(getApplicationContext());
 		connection.address_str = getString(R.string.server_addr);
 		try {
 			String gameName = home_team + " vs " + away_team;
 			connection.Connect(getString(R.string.server_addr), gameName);
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	// Set time text and clock button
 	public void timeButtonClick(View view) {
-	    	timer = sport.getClock(time); 
-		TextView t = (TextView) findViewById(R.id.timeText); 
-		timer.setTextView(t); 
-		timer.start(); 
-		Toast.makeText(getApplicationContext(), "Started Clock", Toast.LENGTH_SHORT).show();
+		if (timer_running) {
+			timer.pause(); 
+		} else {
+			timer.start();
+		}
+		timer_running = !timer_running; 
 	}
 
 	public void showEventPromptDialog() {
@@ -185,13 +130,16 @@ public class FieldActivity extends Activity implements
 		dialog.show(getFragmentManager(), "EventPromptDialog");
 	}
 
-	// TODO Dummy method to put in current game Info,
-	// should be changed later to listen to event and update game info
 	public String getGameInfo() {
+	    	game_info = new HashMap<String, String>();
+	    	game_info.put("Home Team", home_team);
+	    	game_info.put("Away Team", away_team);
+	    	game_info.put("Game Score", homeScore + " - " + awayScore);
+	    	game_info.put("Game Time", time);
+	    	
 		JSONObject object = new JSONObject();
 		try {
-			object.put("Score: ", homeScore + " - " + awayScore);
-			object.put("game time", "90:00");
+			object = JsonHelper.toJSON(game_info);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -215,6 +163,13 @@ public class FieldActivity extends Activity implements
 			RelativeLayout rl = (RelativeLayout) findViewById(R.id.fieldlayout);
 			ImageView iv;
 			RelativeLayout.LayoutParams params;
+			
+			ImageView imageView = (ImageView) findViewById(R.id.fieldimage); 
+			
+			float toSendWidth = touchX/imageView.getWidth(); 
+			float toSendHeight = touchY/imageView.getHeight(); 
+			
+			
 
 			iv = new ImageView(this);
 			iv.setImageResource(R.drawable.orangecircle);
@@ -235,9 +190,11 @@ public class FieldActivity extends Activity implements
 
 			Toast.makeText(getApplicationContext(), liveCast,
 					Toast.LENGTH_SHORT).show();
+
 			int relX = (int) (touchX);
 			int relY = (int) (touchY);
 			connection.broadcast(liveCast, relX, relY);
+
 
 		}
 	}

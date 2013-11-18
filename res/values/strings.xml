@@ -21,5 +21,4 @@
     <color name="orange">#FF6103</color>
     <color name="black">#000000</color>
     <string name="server_addr">http://yourcast-server.appspot.com</string>
-
 </resources>

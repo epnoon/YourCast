@@ -320,9 +320,9 @@ public class EventListener {
 			y_coord = y;
 			event_msg = msg;
 		}
+
 		protected Integer doInBackground(String... params) {			
 			HttpPost httppost = new HttpPost(address_str);
-			
 			JSONObject object = new JSONObject();
 			JSONObject eventobject = new JSONObject();
 			try {
