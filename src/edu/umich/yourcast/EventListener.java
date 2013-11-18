@@ -10,7 +10,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
+import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -19,8 +21,19 @@ import android.content.ContextWrapper;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import edu.umich.yourcast.Ycpacket.Event;
 import edu.umich.yourcast.Ycpacket.*;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.*;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class EventListener {
 	public static final String PTYPE_CREATE = "create_session";
@@ -33,15 +46,17 @@ public class EventListener {
 	public static final String PTYPE_CONFIRM = "confirm_event";
 	public static final String PTYPE_GET_SESSIONS = "get_sessions";
 	
-	private static DatagramSocket socket = null;
-	private static int uid;
+	private static HttpClient httpclient = new DefaultHttpClient();
+	private static String uid = "12345";
 	private static int session;
-	public static int PORT = 30303;
 	private static InetAddress address = null;
 	private Context ctx;
 	private ListView listview;
-	public int eventid=0;
+	private int eventid=0;
 	private FragmentManager currentFragment = null;
+	public static String address_str;
+	private List<String> eventStrings = new ArrayList<String>();
+	public Activity callingAct;
 	
 	public EventListener(Context c) {
 		this.ctx = c;
@@ -103,37 +118,90 @@ public class EventListener {
 			int session_num = params[0];
 			int event_id = params[1];
 			Log.d("MYMY", "polling event "+Integer.toString(event_id)+" session "+Integer.toString(session_num));
-			Packet request = Packet.newBuilder()
-				.setType(PTYPE_POLL)
-				.setUserId(uid)
-				.setEventId(event_id)
-				.setSessionNum(session_num)
-				.build();
-			byte[] serialized_request = request.toByteArray();
-			int request_len = serialized_request.length;
-			DatagramPacket request_packet = new DatagramPacket(serialized_request, request_len, address, PORT);
+
+			HttpPost httppost = new HttpPost(address_str);
 			
+			JSONObject object = new JSONObject();
 			try {
-				socket.send(request_packet);
+				object.put("type", PTYPE_POLL);
+				object.put("user_id", uid);
+				object.put("event_id", eventid);
+				object.put("session_num", session_num);
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
-			catch (IOException e){
-				return 34;
-			}
-		
-			Event[] responses = getEvents();
-			if (responses.length == 0) {
-				Log.d("MYMY", "No new events");
-				return 0;
-			}
-			String[] event_strings;
-			event_strings = getStrings(responses);
-			if (event_strings.length == 0){
+			String serialized_request = object.toString();
+			
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+			nameValuePairs.add(new BasicNameValuePair("data", serialized_request));
+	        try {
+				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			} catch (UnsupportedEncodingException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 				return 1;
 			}
-				
+	        
+	        HttpResponse httpresponse;
+	        InputStream content = null;
+	        String result = "";
+			try {
+				httpresponse = httpclient.execute(httppost);
+				HttpEntity response_ent = httpresponse.getEntity();
+				result = EntityUtils.toString(response_ent);
+			} catch (ClientProtocolException e) {
+				Log.e("MYMY" ,Log.getStackTraceString(e));
+				return 1;
+			} catch (IOException e) {
+				Log.e("MYMY" ,Log.getStackTraceString(e));
+				return 1;
+			}
+	       
+			Log.d("MYMY", "Got response: "+result);
+			JSONObject response;
+			try {
+				response = new JSONObject(result);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				return 1;
+			}
+			
+			try {
+				if (response.getString("type").equals(PTYPE_EVENT)) {
+					eventid = response.getInt("event_id");
+					for (int x=0;x<100;x++) {
+						if (response.has("event"+Integer.toString(x))) {
+							String eventMsg = response.getString("event"+Integer.toString(x));
+							JSONObject eventJson = new JSONObject(eventMsg);
+							String eventStr = eventJson.getString("msg");
+							final int eventX = eventJson.getInt("x");
+							final int eventY = eventJson.getInt("y");
+							eventStrings.add(eventStr);
+							callingAct.runOnUiThread(new Runnable() {
+								public void run(){
+									addDot(eventX, eventY);
+								}
+							});
+						}
+						else {
+							break;
+						}
+					}
+				}
+			}
+			catch (Exception e) {
+				Log.e("MYMY", Log.getStackTraceString(e));
+				return 1;
+			}
+			
+			if (eventStrings.size() == 0){
+				return 1;
+			}
+			
+			String[] strarray = eventStrings.toArray(new String[eventStrings.size()]);	
 			ListAdapter adapter = listview.getAdapter();
-			new_array = new ArrayAdapter<String>(ctx, R.layout.list_update, event_strings);
-			//new_array.addAll(event_strings);
+			new_array = new ArrayAdapter<String>(ctx, R.layout.list_update, strarray);
 			return 0;
 		}
 		protected void onProgessUpdate(Boolean...prog){
@@ -154,82 +222,17 @@ public class EventListener {
 		listview = view;
 	}
 	
-	private Event[] getEvents() {
-		List<Event> events = new ArrayList<Event>();
-		while (true) {
-			byte[] buffer = new byte[1024];
-			int buflen = 1024;
-			DatagramPacket recvpacket = new DatagramPacket(buffer, buflen);
-			try {
-				socket.receive(recvpacket);
-			}
-			catch (Exception e){
-				Log.e("MYMY" ,Log.getStackTraceString(e));
-				return events.toArray(new Event[events.size()]);
-			}
-			// Parse the buffered data
-			Packet response;
-			try {
-				String packet_data = new String(recvpacket.getData(), 0, recvpacket.getLength());
-				response = Packet.parseFrom(packet_data.getBytes());
-			}
-			catch (Exception e){
-				Log.e("MYMY" ,Log.getStackTraceString(e));
-				return events.toArray(new Event[events.size()]);
-			}
-			
-			if (response.getType().equals(PTYPE_EVENT)) {
-				Event event = response.getEvent();
-				if (!response.hasEvent()) {
-					Log.d("MYMY", "no event!");
-				}
-				events.add(event);
-				Log.d("MYMY", "Got eventid "+Integer.toString(event.getId()));
-				Log.d("MYMY", "Got event "+event.getMsg());
-			}
-			else {
-				Log.d("MYMY", "got packet type "+response.getType());
-				return events.toArray(new Event[events.size()]);
-			}
-		}
-	}
-	
-	public String[] getStrings(Event[] responses) {
-		List<String> strings= new ArrayList<String>();
-		for (int x=0;x<responses.length;x++) {
-			strings.add(responses[x].getMsg());
-		}
-		return strings.toArray(new String[strings.size()]);
-	}
+	public void addDot(int x, int y){
+		RelativeLayout rl = (RelativeLayout) callingAct.findViewById(R.id.fanfieldlayout);
+		ImageView iv;
+		RelativeLayout.LayoutParams params;
 
-	private int sendForResponse(DatagramPacket outgoing, DatagramPacket incoming, int maxAttempts){
-		for (int attempts = 0;attempts < maxAttempts;attempts++) {
-			try {
-				socket.send(outgoing);
-				socket.receive(incoming);
-				break;
-			}
-			catch (SocketTimeoutException e) {
-				if (attempts == 2) {
-					Log.d("MYMY", "Connection timed out");
-					return 1;
-				}
-			} catch (IOException e) {
-				Log.e("MYMY" ,Log.getStackTraceString(e));
-				return 1;
-			}
-		}
-		return 0;
-	}
-	
-	public int setAddr(String addr) {
-		try {
-			address = InetAddress.getByName(addr);
-			return 0;
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			return 1;
-		}
+		iv = new ImageView(callingAct);
+		iv.setImageResource(R.drawable.orangecircle);
+		params = new RelativeLayout.LayoutParams(40, 40);
+		params.leftMargin = x;
+		params.topMargin = y;
+		rl.addView(iv, params);
 	}
 	
 	public void setFragment(FragmentManager fm){
@@ -238,68 +241,72 @@ public class EventListener {
 	
 	public class GetSessionsTask extends AsyncTask<WatchGameDialog, Boolean, Integer> {
 		protected Integer doInBackground(WatchGameDialog... dialogs) {
-			// Check to see if addr is set
-			if (address == null) {
-				return 1;
-			}
+			HttpPost httppost = new HttpPost(address_str);
 			
-			// Open up a socket
-			if (socket == null) {
-				try {
-					socket = new DatagramSocket(30303);
-					socket.setSoTimeout(5000);
-				}
-				catch (Exception e) {
-					Log.e("MYMY", Log.getStackTraceString(e));
-					return 1;
-				}
-			}
-			
-			// Create packet
-			Packet request = Packet.newBuilder()
-				.setType(PTYPE_GET_SESSIONS)
-				.setUserId(1)
-				.build();
-			byte[] serialized_request = request.toByteArray();
-			int request_len = serialized_request.length;
-			DatagramPacket packet = new DatagramPacket(serialized_request, request_len, address, PORT);
-			
-			// Construct recv buffer
-			byte[] buffer = new byte[1024];
-			int buflen = 1024;
-			DatagramPacket recvpacket = new DatagramPacket(buffer, buflen);
-			
-			// Send packet
-			int result = sendForResponse(packet, recvpacket, 3);
-			if (result == 1) {
-				return 1;
-			}
-			
-			// Parse the buffered data
-			Packet response;
+			JSONObject object = new JSONObject();
 			try {
-				String packet_data = new String(recvpacket.getData(), 0, recvpacket.getLength());
-				response = Packet.parseFrom(packet_data.getBytes());
+				object.put("type", PTYPE_GET_SESSIONS);
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
-			catch (Exception e){
+			String serialized_request = object.toString();
+			
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+			nameValuePairs.add(new BasicNameValuePair("data", serialized_request));
+	        try {
+				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			} catch (UnsupportedEncodingException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				return 1;
+			}
+	        
+	        HttpResponse httpresponse;
+	        InputStream content = null;
+	        String result = "";
+			try {
+				httpresponse = httpclient.execute(httppost);
+				HttpEntity response_ent = httpresponse.getEntity();
+				result = EntityUtils.toString(response_ent);
+			} catch (ClientProtocolException e) {
 				Log.e("MYMY" ,Log.getStackTraceString(e));
+				return 1;
+			} catch (IOException e) {
+				Log.e("MYMY" ,Log.getStackTraceString(e));
+				return 1;
+			}
+	       
+			Log.d("MYMY", "Got response: "+result);
+			JSONObject response;
+			try {
+				response = new JSONObject(result);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 				return 1;
 			}
 			
 			// Confirm server received event
-			if (response.getType().equals(PTYPE_GET_SESSIONS)) {
-				String json_str = response.getMsg();
-				Log.d("MYMY", "Got sessions"+json_str);
-				dialogs[0].setGames(json_str);
-				dialogs[0].show(currentFragment, "WatchGameDialog");
-				return 0;
+			try {
+				if (response.getString("type").equals(PTYPE_GET_SESSIONS)) {
+					String json_str = response.getString("msg");
+					Log.d("MYMY", "Got sessions"+json_str);
+					dialogs[0].setGames(json_str);
+					dialogs[0].show(currentFragment, "WatchGameDialog");
+					return 0;
+				}
+			}
+			catch (Exception e){
+				Log.e("MYMY" ,Log.getStackTraceString(e));
 			}
 			return 1;
 
 		}
 		protected void onPostExecute(Integer result){
-			if (result == 0) {
-				
+			if (result == 1) {
+				if (ctx != null){
+					Toast.makeText(ctx, "Couldn't connect to server", Toast.LENGTH_SHORT);
+				}
 			}
 		}
 	}
@@ -313,59 +320,66 @@ public class EventListener {
 			y_coord = y;
 			event_msg = msg;
 		}
-		protected Integer doInBackground(String... params) {
-			// Make sure we are connected
-			if (address == null || socket == null) {
-				Log.d("MYMY", "No connection");
-				return 1;
-			}
+		protected Integer doInBackground(String... params) {			
+			HttpPost httppost = new HttpPost(address_str);
 			
-			// Create event
-			Event event = Event.newBuilder()
-				.setType(1)
-				.setId(eventid++)
-				.setMsg(params[0])
-				.addData(x_coord)
-				.addData(y_coord)
-				.build();
-			
-			// Create packet
-			Packet request = Packet.newBuilder()
-				.setType(PTYPE_BROADCAST)
-				.setUserId(uid)
-				.setSessionNum(session)
-				.setEvent(event)
-				.build();
-			byte[] serialized_request = request.toByteArray();
-			int request_len = serialized_request.length;
-			DatagramPacket packet = new DatagramPacket(serialized_request, request_len, address, PORT);
-			
-			// Construct recv buffer
-			byte[] buffer = new byte[1024];
-			int buflen = 1024;
-			DatagramPacket recvpacket = new DatagramPacket(buffer, buflen);
-			
-			// Send packet
-			int result = sendForResponse(packet, recvpacket, 3);
-			if (result == 1) {
-				return 1;
-			}
-			
-			// Parse the buffered data
-			Packet response;
+			JSONObject object = new JSONObject();
+			JSONObject eventobject = new JSONObject();
 			try {
-				String packet_data = new String(recvpacket.getData(), 0, recvpacket.getLength());
-				response = Packet.parseFrom(packet_data.getBytes());
+				eventobject.put("msg", event_msg);
+				eventobject.put("x", x_coord);
+				eventobject.put("y", y_coord);
+				object.put("type", PTYPE_BROADCAST);
+				object.put("event", eventobject.toString());
+				object.put("user_id", uid);
+				object.put("session_num", session);
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
-			catch (Exception e){
+			String serialized_request = object.toString();
+			
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+			nameValuePairs.add(new BasicNameValuePair("data", serialized_request));
+	        try {
+				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			} catch (UnsupportedEncodingException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+	        
+	        HttpResponse httpresponse;
+	        InputStream content = null;
+	        String result = "";
+			try {
+				httpresponse = httpclient.execute(httppost);
+				HttpEntity response_ent = httpresponse.getEntity();
+				result = EntityUtils.toString(response_ent);
+			} catch (ClientProtocolException e) {
 				Log.e("MYMY" ,Log.getStackTraceString(e));
+			} catch (IOException e) {
+				Log.e("MYMY" ,Log.getStackTraceString(e));
+			}
+	       
+			
+			Log.d("MYMY", "Got response: "+result);
+			JSONObject response;
+			try {
+				response = new JSONObject(result);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 				return 1;
 			}
 			
 			// Confirm server received event
-			if (response.getType().equals(PTYPE_CONFIRM)) {
-				Log.d("MYMY", "Sent event for session"+Integer.toString(session)+"uid "+Integer.toString(uid));
-				return 0;
+			try {
+				if (response.getString("type").equals(PTYPE_CONFIRM)) {
+					Log.d("MYMY", "Sent event for session"+Integer.toString(session)+"uid "+uid);
+					return 0;
+				}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			
 			return 1;
@@ -391,111 +405,74 @@ public class EventListener {
 				e.printStackTrace();
 			}
 			
-			// Open up a socket
-			if (socket == null) {
-				try {
-					socket = new DatagramSocket(30303);
-					socket.setSoTimeout(5000);
-				}
-				catch (Exception e) {
-					Log.e("MYMY", Log.getStackTraceString(e));
-					return 1;
-				}
-			}
+			HttpPost httppost = new HttpPost(address_str);
 			
-			// Create hello packet
-			Packet request = Packet.newBuilder()
-					.setType("hello")
-					.setUserId(0)
-					.build();
-			byte[] serialized_request = request.toByteArray();
-			int request_len = serialized_request.length;
-			DatagramPacket packet = new DatagramPacket(serialized_request, request_len, address, PORT);
-			
-			// Construct recv buffer
-			byte[] buffer = new byte[1024];
-			int buflen = 1024;
-			DatagramPacket recvpacket = new DatagramPacket(buffer, buflen);
-			
-			// Send packet
-			int result = sendForResponse(packet, recvpacket, 3);
-			if (result == 1) {
-				return 1;
-			}
-			
-			// Parse the buffered data
-			Packet response;
+			JSONObject object = new JSONObject();
 			try {
-				ByteString packet_data = ByteString.copyFrom(recvpacket.getData(), 0, recvpacket.getLength());
-				response = Packet.parseFrom(packet_data);
+				object.put("type", PTYPE_CREATE);
+				object.put("user_id", uid);
+				object.put("msg", params[1]);
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
-			catch (Exception e){
-				Log.e("MYMY" ,Log.getStackTraceString(e));
-				return 1;
-			}
+			String serialized_request = object.toString();
 			
-			// Verify the server sent us a UserId
-			if (response.getType().equals(PTYPE_NEWUSER)) {
-				if (!response.hasUserId()){
-					Log.d("MYMY", "No userid in packet");
-					return 1;
-				}
-				uid = response.getUserId();
-				Log.d("MYMY", "User ID is "+Integer.toString(uid));
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+			nameValuePairs.add(new BasicNameValuePair("data", serialized_request));
+	        try {
+				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			} catch (UnsupportedEncodingException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
-			else {
-				Log.d("MYMY", "type is "+response.getType());
+	        
+	        HttpResponse httpresponse;
+	        InputStream content = null;
+	        String result = "";
+			try {
+				httpresponse = httpclient.execute(httppost);
+				HttpEntity response_ent = httpresponse.getEntity();
+				result = EntityUtils.toString(response_ent);
+			} catch (ClientProtocolException e) {
+				Log.e("MYMY" ,Log.getStackTraceString(e));
+			} catch (IOException e) {
+				Log.e("MYMY" ,Log.getStackTraceString(e));
+			}
+	       
+			
+			Log.d("MYMY", "Got response: "+result);
+			JSONObject response;
+			try {
+				response = new JSONObject(result);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 				return 1;
 			}
 			
 			if (params.length == 1) {
 				// Dont create a session
 				return 0;
-			}
-			
-			// Create new session packet
-			request = Packet.newBuilder()
-					.setType(PTYPE_CREATE)
-					.setUserId(uid)
-					.setMsg(params[1])
-					.build();
-			serialized_request = request.toByteArray();
-			request_len = serialized_request.length;
-			packet = new DatagramPacket(serialized_request, request_len, address, PORT);
-			
-			// Construct recv buffer
-			//buffer = new byte[1024];
-			recvpacket = new DatagramPacket(buffer, buflen);
-			
-			// Send packet
-			result = sendForResponse(packet, recvpacket, 3);
-			if (result == 1) {
-				return 1;
-			}
-			
-			// Parse the buffered data
+			}	
 			try {
-				ByteString packet_data = ByteString.copyFrom(recvpacket.getData(), 0, recvpacket.getLength());
-				response = Packet.parseFrom(packet_data);
-			}
-			catch (Exception e){
-				Log.e("MYMY" ,Log.getStackTraceString(e));
-				return 1;
-			}
-			
-			// Verify we have a new session
-			if (response.getType().equals(PTYPE_CREATE)) {
-				if (!response.hasSessionNum()){
-					Log.d("MYMY", "No session num in packet");
+				// Verify we have a new session
+				if (response.getString("type").equals(PTYPE_CREATE)) {
+					if (!response.has("session_num")){
+						Log.d("MYMY", "No session num in packet");
+						return 1;
+					}
+					
+					Log.d("MYMY", "Session num "+Integer.toString(response.getInt("session_num")));
+					session = response.getInt("session_num");
+					return 0;
+				}
+				else {
+					Log.d("MYMY", "type is not confirm");
 					return 1;
 				}
-				
-				Log.d("MYMY", "Session num "+Integer.toString(response.getSessionNum()));
-				session = response.getSessionNum();
-				return 0;
 			}
-			else {
-				Log.d("MYMY", "type is "+response.getType());
+			catch (Exception e) {
+				Log.d("MYMY", "error yo");
 				return 1;
 			}
 		}

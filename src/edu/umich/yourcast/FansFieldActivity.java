@@ -10,6 +10,7 @@ import android.graphics.Matrix;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 
@@ -17,7 +18,7 @@ public class FansFieldActivity extends Activity {
 	private String[] EVENTS = new String[] {}; 
 	private int session_num;
 	private EventListener connection;
-	private static Timer pollTimer = new Timer("pollTimer", false);
+	private static Timer pollTimer;
 	
 	
     @Override
@@ -40,20 +41,29 @@ public class FansFieldActivity extends Activity {
 		listview.setAdapter(adapter); 
 		
 		connection = new EventListener(getApplicationContext());
-		connection.setAddr(getString(R.string.server_addr));
+		connection.address_str = getString(R.string.server_addr);
+		connection.callingAct = this;
 		connection.setList(listview);
 		
-		pollTimer.scheduleAtFixedRate(new pollTimerTask(), 0, 5000);
     }
     
-    protected void onPause() {
-    	pollTimer.cancel();
-    }
+   protected void onPause() {
+	   super.onPause();
+	   pollTimer.cancel();
+   }
+   
+   protected void onResume() {
+	   super.onResume();
+	   pollTimer = new Timer("pollTimer", false);
+	   pollTimer.scheduleAtFixedRate(new pollTimerTask(), 0, 2000);
+   }
+   
+
     
-    public class pollTimerTask extends TimerTask {
+   public class pollTimerTask extends TimerTask {
     	private Context ctx;
     	private int last_id = 0;
-    	
+    
     	@Override
     	public void run() {
     		connection.poll(session_num, last_id);

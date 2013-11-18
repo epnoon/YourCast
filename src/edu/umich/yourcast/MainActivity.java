@@ -74,7 +74,7 @@ public class MainActivity extends FragmentActivity implements
 		
 		// Get list of games
 		EventListener connection = new EventListener();
-		connection.setAddr(getString(R.string.server_addr));
+		connection.address_str = getString(R.string.server_addr);
 		connection.setFragment(getFragmentManager());
 		connection.get_sessions(dialog);
 

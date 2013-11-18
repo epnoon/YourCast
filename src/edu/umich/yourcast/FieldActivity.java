@@ -159,8 +159,8 @@ public class FieldActivity extends Activity implements
 		Log.d("MYMY", "Connecting to server");
 		Toast.makeText(getApplicationContext(), "Connecting", Toast.LENGTH_SHORT).show();
 		connection = new EventListener(getApplicationContext());
+		connection.address_str = getString(R.string.server_addr);
 		try {
-			InetAddress addr = InetAddress.getByName(getString(R.string.server_addr));
 			String gameName = home_team + " vs " + away_team;
 			connection.Connect(getString(R.string.server_addr), gameName);
 		}
@@ -235,7 +235,9 @@ public class FieldActivity extends Activity implements
 
 			Toast.makeText(getApplicationContext(), liveCast,
 					Toast.LENGTH_SHORT).show();
-			connection.broadcast(liveCast, (int)touchX, (int)touchY);
+			int relX = (int) (touchX);
+			int relY = (int) (touchY);
+			connection.broadcast(liveCast, relX, relY);
 
 		}
 	}
