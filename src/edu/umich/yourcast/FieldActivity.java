@@ -1,6 +1,5 @@
 package edu.umich.yourcast;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -20,7 +19,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-@SuppressWarnings("unused")
 public class FieldActivity extends Activity implements
 		EventPromptDialog.EventPromptDialogListener {
 	float touchX, touchY;
@@ -33,7 +31,9 @@ public class FieldActivity extends Activity implements
 	ArrayList<String> currentWords;
 	int homeScore = 0, awayScore = 0;
 	SportTimer timer;
-	boolean timer_running = false; 
+	boolean timer_running = false;
+	String access_token, access_token_secret;
+	boolean logged_in;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +41,11 @@ public class FieldActivity extends Activity implements
 		setContentView(R.layout.broadcaster_interface);
 		Intent intent = getIntent();
 		String json = intent.getStringExtra(MainActivity.MATCH_INFO);
+		access_token = intent.getStringExtra(MainActivity.PREF_KEY_OAUTH_TOKEN);
+		access_token_secret = intent
+				.getStringExtra(MainActivity.PREF_KEY_OAUTH_SECRET);
+		logged_in = intent.getBooleanExtra(MainActivity.PREF_KEY_TWITTER_LOGIN,
+				false);
 		JSONObject match_info;
 		try {
 			match_info = new JSONObject(json);
@@ -65,10 +70,10 @@ public class FieldActivity extends Activity implements
 			away_team = "Ohio St.";
 			time = "80";
 		}
-		
+
 		TextView clock = (TextView) findViewById(R.id.timeText);
-		ImageView clockButton = (ImageView) findViewById(R.id.timeButton); 
-		timer = sport.getClock(time, clock, clockButton); 
+		ImageView clockButton = (ImageView) findViewById(R.id.timeButton);
+		timer = sport.getClock(time, clock, clockButton);
 
 		// Set title.
 		TextView opponents = (TextView) findViewById(R.id.opponents);
@@ -116,11 +121,11 @@ public class FieldActivity extends Activity implements
 	// Set time text and clock button
 	public void timeButtonClick(View view) {
 		if (timer_running) {
-			timer.pause(); 
+			timer.pause();
 		} else {
 			timer.start();
 		}
-		timer_running = !timer_running; 
+		timer_running = !timer_running;
 	}
 
 	public void showEventPromptDialog() {
@@ -131,12 +136,12 @@ public class FieldActivity extends Activity implements
 	}
 
 	public String getGameInfo() {
-	    	game_info = new HashMap<String, String>();
-	    	game_info.put("Home Team", home_team);
-	    	game_info.put("Away Team", away_team);
-	    	game_info.put("Game Score", homeScore + " - " + awayScore);
-	    	game_info.put("Game Time", time);
-	    	
+		game_info = new HashMap<String, String>();
+		game_info.put("Home Team", home_team);
+		game_info.put("Away Team", away_team);
+		game_info.put("Game Score", homeScore + " - " + awayScore);
+		game_info.put("Game Time", time);
+
 		JSONObject object = new JSONObject();
 		try {
 			object = JsonHelper.toJSON(game_info);
@@ -163,13 +168,11 @@ public class FieldActivity extends Activity implements
 			RelativeLayout rl = (RelativeLayout) findViewById(R.id.fieldlayout);
 			ImageView iv;
 			RelativeLayout.LayoutParams params;
-			
-			ImageView imageView = (ImageView) findViewById(R.id.fieldimage); 
-			
-			float toSendWidth = touchX/imageView.getWidth(); 
-			float toSendHeight = touchY/imageView.getHeight(); 
-			
-			
+
+			ImageView imageView = (ImageView) findViewById(R.id.fieldimage);
+
+			float toSendWidth = touchX / imageView.getWidth();
+			float toSendHeight = touchY / imageView.getHeight();
 
 			iv = new ImageView(this);
 			iv.setImageResource(R.drawable.orangecircle);
@@ -191,10 +194,14 @@ public class FieldActivity extends Activity implements
 			Toast.makeText(getApplicationContext(), liveCast,
 					Toast.LENGTH_SHORT).show();
 
+			if (logged_in) {
+				new updateTwitterStatus(this,
+						access_token, access_token_secret).execute(liveCast);
+			}
+
 			int relX = (int) (touchX);
 			int relY = (int) (touchY);
 			connection.broadcast(liveCast, relX, relY);
-
 
 		}
 	}

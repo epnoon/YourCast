@@ -5,20 +5,30 @@
     android:orientation="vertical"
     android:weightSum="4" >
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="3"
-        android:background="#AA6600"
+        android:background="#000000"
         android:orientation="horizontal" >
-
+        
+               
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginLeft="-50dp"
             android:layout_marginRight="-50dp"
             android:src="@drawable/homescreen" />
-    </LinearLayout>
+        <ImageButton
+            android:id="@+id/loginButton"
+            android:layout_width="30dip"
+            android:layout_height="30dip"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:background="@drawable/info_icon"/>
+
+        
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
