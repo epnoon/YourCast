@@ -54,8 +54,8 @@ public class updateTwitterStatus extends AsyncTask<String, String, String> {
         String status = args[0];
         try {
             ConfigurationBuilder builder = new ConfigurationBuilder();
-            builder.setOAuthConsumerKey(MainActivity.TWITTER_CONSUMER_KEY);
-            builder.setOAuthConsumerSecret(MainActivity.TWITTER_CONSUMER_SECRET);
+            builder.setOAuthConsumerKey(Constants.TWITTER_CONSUMER_KEY);
+            builder.setOAuthConsumerSecret(Constants.TWITTER_CONSUMER_SECRET);
                
             AccessToken accessToken = new AccessToken(access_token, access_token_secret);
             Twitter twitter = new TwitterFactory(builder.build()).getInstance(accessToken);

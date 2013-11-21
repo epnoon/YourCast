@@ -32,32 +32,29 @@ public class FieldActivity extends Activity implements
 	int homeScore = 0, awayScore = 0;
 	SportTimer timer;
 	boolean timer_running = false;
-	String access_token, access_token_secret;
+	String access_token, access_token_secret, json;
 	boolean logged_in;
+	JSONObject match_info; 
+	
+	TextView clock, opponents; 
+	ImageView clockButton, fieldView; 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.broadcaster_interface);
+		
+		// Get information from the Intent. 
 		Intent intent = getIntent();
-		String json = intent.getStringExtra(MainActivity.MATCH_INFO);
-		access_token = intent.getStringExtra(MainActivity.PREF_KEY_OAUTH_TOKEN);
-		access_token_secret = intent
-				.getStringExtra(MainActivity.PREF_KEY_OAUTH_SECRET);
-		logged_in = intent.getBooleanExtra(MainActivity.PREF_KEY_TWITTER_LOGIN,
-				false);
-		JSONObject match_info;
-		try {
-			match_info = new JSONObject(json);
-			sport_name = (String) match_info.getString("sport");
-			home_team = (String) match_info.getString("home team");
-			away_team = (String) match_info.getString("away team");
-			time = (String) match_info.getString("time");
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		json = intent.getStringExtra(Constants.MATCH_INFO);
+		access_token = intent.getStringExtra(Constants.PREF_KEY_OAUTH_TOKEN);
+		access_token_secret = intent.getStringExtra(Constants.PREF_KEY_OAUTH_SECRET);
+		logged_in = intent.getBooleanExtra(Constants.PREF_KEY_TWITTER_LOGIN, false);
+		
+		// Decrypt JSON. 
+		getJSON(); 
 
+		// Select Sport. 
 		if (sport_name.equals(NewGameDialog.RUGBY)) {
 			sport = new RugbySport();
 		} else {
@@ -65,40 +62,39 @@ public class FieldActivity extends Activity implements
 		}
 
 		// Testing.
-		if (home_team.isEmpty()) {
-			home_team = "Michigan";
-			away_team = "Ohio St.";
-			time = "80";
-		}
+		if (home_team.isEmpty()) { home_team = "Michigan"; }
+		if (away_team.isEmpty()) { away_team = "Ohio St."; }
+		if (time.isEmpty()) { time = "80"; }
 
-		TextView clock = (TextView) findViewById(R.id.timeText);
-		ImageView clockButton = (ImageView) findViewById(R.id.timeButton);
+		// Get Views. 
+		clock = (TextView) findViewById(R.id.timeText);
+		clockButton = (ImageView) findViewById(R.id.timeButton);
+		opponents = (TextView) findViewById(R.id.opponents);
+		fieldView = (ImageView) findViewById(R.id.fieldimage);
+		
+		// Set timer. 
 		timer = sport.getClock(time, clock, clockButton);
 
 		// Set title.
-		TextView opponents = (TextView) findViewById(R.id.opponents);
 		opponents.setText(home_team + " vs. " + away_team);
 
-		ImageView fieldView = (ImageView) findViewById(R.id.fieldimage);
+		// Set field picture. 
 		fieldView.setImageResource(sport.getPictureID());
 
+		
 		fieldView.setOnLongClickListener(new OnLongClickListener() {
-
 			@Override
 			public boolean onLongClick(View v) {
-				imageX = touchX;
-				imageY = touchY;
+				// Reset words arraylist. 
 				currentWords = new ArrayList<String>();
 				showEventPromptDialog();
 				return true;
 			}
-
 		});
 
 		fieldView.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-				View field = (View) findViewById(R.id.fieldimage);
 				touchX = event.getX();
 				touchY = event.getY();
 				return false;
@@ -150,7 +146,20 @@ public class FieldActivity extends Activity implements
 		}
 		return object.toString();
 	}
-
+	
+	private void getJSON() {
+		try {
+			match_info = new JSONObject(json);
+			sport_name = (String) match_info.getString("sport");
+			home_team = (String) match_info.getString("home team");
+			away_team = (String) match_info.getString("away team");
+			time = (String) match_info.getString("time");
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public void infoButtonClick(View view) {
 		GameInfoDialog dialog = GameInfoDialog.create(getGameInfo());
 		dialog.show(getFragmentManager(), "GameInfoDialog");
