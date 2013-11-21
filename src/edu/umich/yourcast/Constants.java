@@ -19,4 +19,15 @@ public class Constants {
 	// Font path
 	static final String FONT_PATH = "fonts/LaPerutaFLF-Bold.ttf";
 
+	public static final String PTYPE_CREATE = "create_session";
+	public static final String PTYPE_BROADCAST = "broadcast";
+	public static final String PTYPE_POLL = "poll";
+	public static final String PTYPE_UPTODATE = "up_to_date";
+	public static final String PTYPE_EVENT = "event";
+	public static final String PTYPE_NEWUSER = "new_user";
+	public static final String PTYPE_EXCEPTION = "exception";
+	public static final String PTYPE_CONFIRM = "confirm_event";
+	public static final String PTYPE_GET_SESSIONS = "get_sessions";
+	
+	public static final String POST_ADDRESS = "http://yourcast-server.appspot.com"; 
 }

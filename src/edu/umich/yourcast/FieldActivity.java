@@ -37,7 +37,8 @@ public class FieldActivity extends Activity implements
 	JSONObject match_info; 
 	
 	TextView clock, opponents; 
-	ImageView clockButton, fieldView; 
+	ImageView clockButton;
+	RelativeLayout fieldView; 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +71,7 @@ public class FieldActivity extends Activity implements
 		clock = (TextView) findViewById(R.id.timeText);
 		clockButton = (ImageView) findViewById(R.id.timeButton);
 		opponents = (TextView) findViewById(R.id.opponents);
-		fieldView = (ImageView) findViewById(R.id.fieldimage);
+		fieldView = (RelativeLayout) findViewById(R.id.fieldlayout);
 		
 		// Set timer. 
 		timer = sport.getClock(time, clock, clockButton);
@@ -79,7 +80,7 @@ public class FieldActivity extends Activity implements
 		opponents.setText(home_team + " vs. " + away_team);
 
 		// Set field picture. 
-		fieldView.setImageResource(sport.getPictureID());
+		fieldView.setBackgroundResource(sport.getPictureID());
 
 		
 		fieldView.setOnLongClickListener(new OnLongClickListener() {
@@ -102,13 +103,11 @@ public class FieldActivity extends Activity implements
 		});
 
 		Log.d("MYMY", "Connecting to server");
-		Toast.makeText(getApplicationContext(), "Connecting",
-				Toast.LENGTH_SHORT).show();
+		Toast.makeText(getApplicationContext(), "Connecting", Toast.LENGTH_SHORT).show();
 		connection = new EventListener(getApplicationContext());
-		connection.address_str = getString(R.string.server_addr);
 		try {
 			String gameName = home_team + " vs " + away_team;
-			connection.Connect(getString(R.string.server_addr), gameName);
+			connection.Connect(gameName);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -174,22 +173,23 @@ public class FieldActivity extends Activity implements
 					eventTree.options(), eventTree.title());
 			dialog.show(getFragmentManager(), "EventPromptDialog");
 		} else {
-			RelativeLayout rl = (RelativeLayout) findViewById(R.id.fieldlayout);
 			ImageView iv;
 			RelativeLayout.LayoutParams params;
+			
+			float layout_width = fieldView.getWidth();
+			float layout_height = fieldView.getHeight(); 
 
-			ImageView imageView = (ImageView) findViewById(R.id.fieldimage);
-
-			float toSendWidth = touchX / imageView.getWidth();
-			float toSendHeight = touchY / imageView.getHeight();
+			String width_proportion = String.valueOf(touchX / layout_width);
+			String height_proportion = String.valueOf(touchY / layout_height);
+			
+			int diameter = (int) Math.round(0.02 * layout_height); 
 
 			iv = new ImageView(this);
 			iv.setImageResource(R.drawable.orangecircle);
-			// iv.setBackgroundColor(Color.RED);
-			params = new RelativeLayout.LayoutParams(40, 40);
-			params.leftMargin = (int) touchX - 20;
-			params.topMargin = (int) touchY - 20;
-			rl.addView(iv, params);
+			params = new RelativeLayout.LayoutParams(diameter, diameter);
+			params.leftMargin = (int) touchX - diameter/2;
+			params.topMargin = (int) touchY - diameter/2;
+			fieldView.addView(iv, params);
 
 			String liveCast = eventTree.createText(currentWords);
 			if (eventTree.getHomePoints(currentWords) > 0
@@ -208,10 +208,7 @@ public class FieldActivity extends Activity implements
 						access_token, access_token_secret).execute(liveCast);
 			}
 
-			int relX = (int) (touchX);
-			int relY = (int) (touchY);
-			connection.broadcast(liveCast, relX, relY);
-
+			connection.broadcast(liveCast, width_proportion, height_proportion);
 		}
 	}
 

@@ -134,19 +134,16 @@ public class MainActivity extends FragmentActivity implements
 
 	public void newGameButtonClick(View view) {
 		NewGameDialog dialog = new NewGameDialog();
+		
+		// Shows dialog. 
 		dialog.show(getFragmentManager(), "NewGameDialog");
 	}
 
 	public void watchGameButtonClick(View view) {
 		WatchGameDialog dialog = new WatchGameDialog();
 
-		// Get list of games
-		EventListener connection = new EventListener();
-		connection.address_str = getString(R.string.server_addr);
-		connection.setFragment(getFragmentManager());
-		connection.get_sessions(dialog);
-
-		// dialog.show(getFragmentManager(), "WatchGameDialog");
+		// Get list of games and shows in dialog. 
+		new EventListener().get_sessions(getFragmentManager(), dialog);
 	}
 
 	@Override
