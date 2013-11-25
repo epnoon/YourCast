@@ -33,11 +33,11 @@ public class MainActivity extends FragmentActivity implements
 
 	// Buttons
 	ImageButton loginButton;
-	TextView broadcastGame, watchGame; 
+	TextView broadcastGame, watchGame, settingsButton; 
 	
 	// Oauth stuff. 
 	String access_token, access_token_secret; 
-	boolean logged_in = false; 
+	boolean logged_in = false, twitter_broadcast, yourcast_broadcast;  
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -63,21 +63,9 @@ public class MainActivity extends FragmentActivity implements
 		
 
 		// Set Buttons.
-		loginButton = (ImageButton) findViewById(R.id.loginButton);
 		broadcastGame = (TextView) findViewById(R.id.broadcastgamebutton);
 		watchGame = (TextView) findViewById(R.id.watchgamebutton);
-		
-		// Parse on callback. 
-		if (!logged_in) {
-			twitterLogin.parseURI(getIntent().getData()); 
-			if (twitterLogin.getLoggedIn()) {
-				Log.d(TAG, "Logged in successfully"); 
-				logged_in = twitterLogin.getLoggedIn(); 
-				access_token = twitterLogin.getAccessToken(); 
-				access_token_secret = twitterLogin.getAccessTokenSecret(); 
-				savePreferences(); 
-			}
-		}	 
+		settingsButton = (TextView) findViewById(R.id.settingsbutton); 	 
 
 		// Loading Font Face
 		Typeface tf = Typeface.createFromAsset(getAssets(), Constants.FONT_PATH);
@@ -85,6 +73,7 @@ public class MainActivity extends FragmentActivity implements
 		// Applying font
 		broadcastGame.setTypeface(tf);
 		watchGame.setTypeface(tf);
+		settingsButton.setTypeface(tf); 
 
 		broadcastGame.setOnClickListener(new OnClickListener() {
 			@Override
@@ -100,21 +89,30 @@ public class MainActivity extends FragmentActivity implements
 			}
 		});
 		
-		// Twitter login button click event will call loginToTwitter() function
-		loginButton.setOnClickListener(new View.OnClickListener() {
+		settingsButton.setOnClickListener(new OnClickListener() {
 			@Override
-			public void onClick(View arg0) {
-				// Call login twitter function
-				twitterLogin.login(); 
+			public void onClick(View view) {
+				goToSettings(); 
 			}
 		});
-
+	}
+	
+	private void goToSettings() {
+		Intent intent = new Intent(this, SettingsActivity.class);
+		intent.putExtra(Constants.PREF_KEY_OAUTH_TOKEN, access_token); 
+		intent.putExtra(Constants.PREF_KEY_OAUTH_SECRET, access_token_secret); 
+		intent.putExtra(Constants.PREF_KEY_TWITTER_LOGIN, logged_in); 
+		intent.putExtra(Constants.TWITTER_BROADCAST, twitter_broadcast); 
+		intent.putExtra(Constants.YOURCAST_BROADCAST, yourcast_broadcast); 
+		startActivity(intent);
 	}
 	
 	private void getPreferences() {
 		access_token = mSharedPreferences.getString(Constants.PREF_KEY_OAUTH_TOKEN, ""); 
 		access_token_secret = mSharedPreferences.getString(Constants.PREF_KEY_OAUTH_SECRET, ""); 
 		logged_in = mSharedPreferences.getBoolean(Constants.PREF_KEY_TWITTER_LOGIN, false); 
+		twitter_broadcast = mSharedPreferences.getBoolean(Constants.TWITTER_BROADCAST, false); 
+		yourcast_broadcast = mSharedPreferences.getBoolean(Constants.YOURCAST_BROADCAST, false); 
 	}
 	
 	private void savePreferences() {
@@ -122,6 +120,8 @@ public class MainActivity extends FragmentActivity implements
 		e.putString(Constants.PREF_KEY_OAUTH_TOKEN, access_token); 
 		e.putString(Constants.PREF_KEY_OAUTH_SECRET, access_token_secret); 
 		e.putBoolean(Constants.PREF_KEY_TWITTER_LOGIN, logged_in);
+		e.putBoolean(Constants.TWITTER_BROADCAST, twitter_broadcast); 
+		e.putBoolean(Constants.YOURCAST_BROADCAST, yourcast_broadcast); 
 		e.commit(); 
 	}
 

@@ -26,16 +26,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="t4jsample"
-                    android:scheme="oauth" />
-            </intent-filter>
         </activity>
         <activity
             android:name="edu.umich.yourcast.FieldActivity"
@@ -56,6 +46,27 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.umich.yourcast.MainActivity" />
+        </activity>
+        <activity
+            android:name="edu.umich.yourcast.SettingsActivity"
+            android:label="@string/app_name"
+            android:parentActivityName="edu.umich.yourcast.MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.umich.yourcast.MainActivity" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="t4jsample"
+                    android:scheme="oauth" />
+            </intent-filter>
         </activity>
     </application>
 

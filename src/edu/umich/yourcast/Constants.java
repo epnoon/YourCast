@@ -7,7 +7,7 @@ public class Constants {
 	static final String PREFERENCE_NAME = "twitter_oauth";
 	static final String PREF_KEY_OAUTH_TOKEN = "oauth_token";
 	static final String PREF_KEY_OAUTH_SECRET = "oauth_token_secret";
-	static final String PREF_KEY_TWITTER_LOGIN = "isTwitterLogedIn";
+	static final String PREF_KEY_TWITTER_LOGIN = "isTwitterLoggedIn";
 	static final String TWITTER_CALLBACK_URL = "oauth://t4jsample";
 
 	static final String URL_TWITTER_AUTH = "auth_url";
@@ -18,6 +18,7 @@ public class Constants {
 	
 	// Font path
 	static final String FONT_PATH = "fonts/UrbanClass.ttf";
+	static final String FONT_PATH_B = "fonts/SpecialElite.ttf";
 
 	public static final String PTYPE_CREATE = "create_session";
 	public static final String PTYPE_BROADCAST = "broadcast";
@@ -30,4 +31,8 @@ public class Constants {
 	public static final String PTYPE_GET_SESSIONS = "get_sessions";
 	
 	public static final String POST_ADDRESS = "http://yourcast-server.appspot.com"; 
+	
+	public static final String TWITTER_BROADCAST = "broadcast with twitter"; 
+	public static final String YOURCAST_BROADCAST = "broadcast with yourcast"; 
+	
 }

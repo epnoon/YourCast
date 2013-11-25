@@ -1,49 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/balls_background" >
-
-    <ImageButton
-        android:id="@+id/loginButton"
-        android:layout_width="40dip"
-        android:layout_height="40dip"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:background="@drawable/twitter_icon" />
-
-    <TextView
-        android:id="@+id/watchgamebutton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/broadcastgamebutton"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="60dp"
-        android:background="#D0A9F5"
-        android:gravity="center"
-        android:text="@string/watch_game"
-        android:textColor="#FFFF00"
-        android:textSize="30sp" />
-
-    <ImageView
-        android:id="@+id/logo"
-        android:layout_width="500dip"
-        android:layout_height="300dip"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/loginButton"
-        android:background="@drawable/yourcastlogo2"
-        android:gravity="center" />
+    android:background="@drawable/yourcast"
+    android:baselineAligned="false"
+    android:gravity="center|bottom"
+    android:orientation="vertical"
+    android:weightSum="9" >
 
     <TextView
         android:id="@+id/broadcastgamebutton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/logo"
-        android:layout_centerHorizontal="true"
-        android:background="#48A331"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:gravity="center"
         android:text="@string/broadcast_game"
-        android:textColor="#2ECCFA"
-        android:textSize="30sp" />
+        android:textColor="#FFFFFF"
+        android:textSize="50sp" />
 
-</RelativeLayout>
+    <TextView
+        android:id="@+id/watchgamebutton"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="@string/watch_game"
+        android:textColor="#FFFFFF"
+        android:textSize="50sp" />
+
+    <TextView
+        android:id="@+id/settingsbutton"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="SETTINGS"
+        android:textColor="#FFFFFF"
+        android:textSize="50sp" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textColor="#FFFFFF"
+        android:textSize="60sp" />
+</LinearLayout>

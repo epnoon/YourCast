@@ -77,13 +77,15 @@ public class TwitterLogin {
 		if (logged_in) {
 			return;
 		}
-
 		if (uri != null
 				&& uri.toString().startsWith(Constants.TWITTER_CALLBACK_URL)) {
+
 			// oAuth verifier
 			String verifier = uri
 					.getQueryParameter(Constants.URL_TWITTER_OAUTH_VERIFIER);
 
+			Log.d("Twitter", uri.toString());
+			Log.d("Twitter", verifier);
 			try {
 				// Get the access token
 				AccessToken accessToken = twitter.getOAuthAccessToken(
@@ -96,19 +98,33 @@ public class TwitterLogin {
 				logged_in = true;
 
 				Log.e("Twitter OAuth Token", "> " + accessToken.getToken());
-
-				// Getting user details from twitter
-				// For now i am getting his name only
-				long userID = accessToken.getUserId();
-				User user = twitter.showUser(userID);
-				String username = user.getName();
-				Toast.makeText(mActivity.getApplicationContext(),
-						"Hello, " + username, Toast.LENGTH_LONG).show();
 			} catch (Exception e) {
 				// Check log for login errors
+				Toast.makeText(mActivity.getApplicationContext(),
+						"Login Failed", Toast.LENGTH_LONG).show();
+				logged_in = false;
 				Log.e("Twitter Login Error", "> " + e.getMessage());
+				e.printStackTrace();
 			}
 		}
+	}
+
+	public String getName() {
+		try {
+			if (!logged_in) {
+				return "";
+			} else {
+				AccessToken accessToken = new AccessToken(access_token,
+						access_token_secret);
+				long userId = accessToken.getUserId();
+				User user = twitter.showUser(userId);
+				return user.getScreenName();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return "";
 	}
 
 }
