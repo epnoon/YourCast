@@ -17,7 +17,7 @@ public class Constants {
 	static final String MATCH_INFO = "edu.umich.yourcast.match_info";
 	
 	// Font path
-	static final String FONT_PATH = "fonts/LaPerutaFLF-Bold.ttf";
+	static final String FONT_PATH = "fonts/UrbanClass.ttf";
 
 	public static final String PTYPE_CREATE = "create_session";
 	public static final String PTYPE_BROADCAST = "broadcast";

@@ -33,7 +33,7 @@ public class MainActivity extends FragmentActivity implements
 
 	// Buttons
 	ImageButton loginButton;
-	TextView newGame, watchGame; 
+	TextView broadcastGame, watchGame; 
 	
 	// Oauth stuff. 
 	String access_token, access_token_secret; 
@@ -53,7 +53,7 @@ public class MainActivity extends FragmentActivity implements
 		mSharedPreferences = getApplicationContext().getSharedPreferences(
 				"TwitterLogin", MODE_PRIVATE);		
 
-		// Check internet and keys. 
+		// Check Internet and keys. 
 		doChecks(); 
 		
 		getPreferences(); 
@@ -64,7 +64,7 @@ public class MainActivity extends FragmentActivity implements
 
 		// Set Buttons.
 		loginButton = (ImageButton) findViewById(R.id.loginButton);
-		newGame = (TextView) findViewById(R.id.newgamebutton);
+		broadcastGame = (TextView) findViewById(R.id.broadcastgamebutton);
 		watchGame = (TextView) findViewById(R.id.watchgamebutton);
 		
 		// Parse on callback. 
@@ -83,10 +83,10 @@ public class MainActivity extends FragmentActivity implements
 		Typeface tf = Typeface.createFromAsset(getAssets(), Constants.FONT_PATH);
 
 		// Applying font
-		newGame.setTypeface(tf);
+		broadcastGame.setTypeface(tf);
 		watchGame.setTypeface(tf);
 
-		newGame.setOnClickListener(new OnClickListener() {
+		broadcastGame.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				newGameButtonClick(view);
