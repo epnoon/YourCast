@@ -1,8 +1,12 @@
 package edu.umich.yourcast;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.app.FragmentActivity;
@@ -11,12 +15,13 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.view.View.OnClickListener;
 
 public class MainActivity extends FragmentActivity implements
 		NewGameDialog.NewGameDialogListener,
 		WatchGameDialog.WatchGameDialogListener {
-	private String TAG = "TWITTER"; 
+	private String TAG = "MainActivity";
 
 	// Internet Connection detector
 	private ConnectionDetector cd;
@@ -29,47 +34,47 @@ public class MainActivity extends FragmentActivity implements
 
 	// Buttons
 	ImageButton loginButton;
-	TextView broadcastGame, watchGame, settingsButton; 
-	
-	// Oauth stuff. 
-	String access_token, access_token_secret; 
-	boolean logged_in = false, twitter_broadcast, yourcast_broadcast;  
+	TextView broadcastGame, watchGame, settingsButton;
+
+	// Oauth stuff.
+	String access_token, access_token_secret;
+	boolean logged_in = false, twitter_broadcast, yourcast_broadcast;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
-		// Thread for Twitter Login. 
-		StrictMode.ThreadPolicy policy = 
-				new StrictMode.ThreadPolicy.Builder().permitAll().build();
+
+		// Thread for Twitter Login.
+		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+				.permitAll().build();
 		StrictMode.setThreadPolicy(policy);
 
 		cd = new ConnectionDetector(getApplicationContext());
 		mSharedPreferences = getApplicationContext().getSharedPreferences(
-				"TwitterLogin", MODE_PRIVATE);		
+				"TwitterLogin", MODE_PRIVATE);
 
-		// Check Internet and keys. 
-		doChecks(); 
-		
-		getPreferences(); 
-		Log.d(TAG, String.valueOf(logged_in)); 
-		Log.d(TAG, access_token); 
-		Log.d(TAG, access_token_secret); 
-		
+		// Check Internet and keys.
+		doChecks();
+
+		getPreferences();
+		Log.d(TAG, String.valueOf(logged_in));
+		Log.d(TAG, access_token);
+		Log.d(TAG, access_token_secret);
 
 		// Set Buttons.
 		broadcastGame = (TextView) findViewById(R.id.broadcastgamebutton);
 		watchGame = (TextView) findViewById(R.id.watchgamebutton);
-		settingsButton = (TextView) findViewById(R.id.settingsbutton); 	 
+		settingsButton = (TextView) findViewById(R.id.settingsbutton);
 
 		// Loading Font Face
-		Typeface tf = Typeface.createFromAsset(getAssets(), Constants.FONT_PATH_B);
+		Typeface tf = Typeface.createFromAsset(getAssets(),
+				Constants.FONT_PATH_B);
 
 		// Applying font
 		broadcastGame.setTypeface(tf);
 		watchGame.setTypeface(tf);
-		settingsButton.setTypeface(tf); 
+		settingsButton.setTypeface(tf);
 
 		broadcastGame.setOnClickListener(new OnClickListener() {
 			@Override
@@ -84,34 +89,37 @@ public class MainActivity extends FragmentActivity implements
 				watchGameButtonClick(view);
 			}
 		});
-		
+
 		settingsButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				goToSettings(); 
+				goToSettings();
 			}
-		});
+		}); 
 	}
-	
+
 	private void goToSettings() {
 		Intent intent = new Intent(this, SettingsActivity.class);
 		startActivity(intent);
 	}
-	
+
 	private void getPreferences() {
-		access_token = mSharedPreferences.getString(Constants.PREF_KEY_OAUTH_TOKEN, ""); 
-		access_token_secret = mSharedPreferences.getString(Constants.PREF_KEY_OAUTH_SECRET, ""); 
-		logged_in = mSharedPreferences.getBoolean(Constants.PREF_KEY_TWITTER_LOGIN, false); 
-		twitter_broadcast = mSharedPreferences.getBoolean(Constants.TWITTER_BROADCAST, false); 
-		yourcast_broadcast = mSharedPreferences.getBoolean(Constants.YOURCAST_BROADCAST, false); 
-		
-		Log.d(TAG, "token: " + access_token); 
-		Log.d(TAG, "secret: " + access_token); 
-		Log.d(TAG, "twitter: " + String.valueOf(twitter_broadcast)); 
-		Log.d(TAG, "yourcast: " + String.valueOf(yourcast_broadcast)); 
-		
-		
-		
+		access_token = mSharedPreferences.getString(
+				Constants.PREF_KEY_OAUTH_TOKEN, "");
+		access_token_secret = mSharedPreferences.getString(
+				Constants.PREF_KEY_OAUTH_SECRET, "");
+		logged_in = mSharedPreferences.getBoolean(
+				Constants.PREF_KEY_TWITTER_LOGIN, false);
+		twitter_broadcast = mSharedPreferences.getBoolean(
+				Constants.TWITTER_BROADCAST, false);
+		yourcast_broadcast = mSharedPreferences.getBoolean(
+				Constants.YOURCAST_BROADCAST, false);
+
+		Log.d(TAG, "token: " + access_token);
+		Log.d(TAG, "secret: " + access_token);
+		Log.d(TAG, "twitter: " + String.valueOf(twitter_broadcast));
+		Log.d(TAG, "yourcast: " + String.valueOf(yourcast_broadcast));
+
 	}
 
 	@Override
@@ -123,15 +131,15 @@ public class MainActivity extends FragmentActivity implements
 
 	public void newGameButtonClick(View view) {
 		NewGameDialog dialog = new NewGameDialog();
-		
-		// Shows dialog. 
+
+		// Shows dialog.
 		dialog.show(getFragmentManager(), "NewGameDialog");
 	}
 
 	public void watchGameButtonClick(View view) {
 		WatchGameDialog dialog = new WatchGameDialog();
 
-		// Get list of games and shows in dialog. 
+		// Get list of games and shows in dialog.
 		new EventListener().get_sessions(getFragmentManager(), dialog);
 	}
 
@@ -145,11 +153,11 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	public void onSelectedGameClick(WatchGameDialog dialog, int id, String title) {
 		Intent intent = new Intent(this, FansFieldActivity.class);
-		intent.putExtra("sessionTitle", title); 
+		intent.putExtra("sessionTitle", title);
 		intent.putExtra("sessionNum", id);
 		startActivity(intent);
 	}
-	
+
 	public void doChecks() {
 		// Check if Internet present
 		if (!cd.isConnectingToInternet()) {
@@ -160,7 +168,6 @@ public class MainActivity extends FragmentActivity implements
 			// stop executing code by return
 			return;
 		}
-		
 
 		// Check if twitter keys are set
 		if (Constants.TWITTER_CONSUMER_KEY.trim().length() == 0
@@ -170,7 +177,7 @@ public class MainActivity extends FragmentActivity implements
 					"Please set your twitter oauth tokens first!", false);
 			// stop executing code by return
 			return;
-		}		
+		}
 	}
 
 }

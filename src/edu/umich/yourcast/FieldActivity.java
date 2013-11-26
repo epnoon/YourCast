@@ -7,8 +7,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -37,6 +40,7 @@ public class FieldActivity extends Activity implements
 	boolean logged_in, twitter_broadcast, yourcast_broadcast; 
 	JSONObject match_info; 
 	SharedPreferences mSharedPreferences; 
+	Weather weather; 
 	
 	TextView clock, opponents; 
 	ImageView clockButton;
@@ -108,6 +112,14 @@ public class FieldActivity extends Activity implements
 				return false;
 			}
 		});
+		
+		// Location stuff.
+		LocationManager locationManager = 
+				(LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+		Location location = 
+				locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+		
+		weather = new Weather(location); 
 
 		Log.d("MYMY", "Connecting to server");
 		Toast.makeText(getApplicationContext(), "Connecting", Toast.LENGTH_SHORT).show();
@@ -143,6 +155,10 @@ public class FieldActivity extends Activity implements
 		game_info.put("Away Team", away_team);
 		game_info.put("Game Score", homeScore + " - " + awayScore);
 		game_info.put("Game Time", time);
+		game_info.put("Weather", (String) weather.getWeather("weather")); 
+		game_info.put("Temp", 
+				weather.getWeather("temp_f").toString() + (char) 0x00B0 + "F"); 
+		game_info.put("Wind", weather.getWeather("wind_mph").toString() + " mph"); 
 
 		JSONObject object = new JSONObject();
 		try {

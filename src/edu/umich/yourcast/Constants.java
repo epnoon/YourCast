@@ -35,4 +35,9 @@ public class Constants {
 	public static final String TWITTER_BROADCAST = "broadcast with twitter"; 
 	public static final String YOURCAST_BROADCAST = "broadcast with yourcast"; 
 	
+	public static final String WUNDERGROUND_BASE = "http://api.wunderground.com/api/"; 
+	public static final String WUNDERGROUND_KEY = "58a14be9eb7b934a/"; 
+	public static final String WUNDERGROUND_GEOLOOKUP = "geolookup/q/"; 
+	public static final String WUNDERGROUND_JSON =".json";
+	public static final String WUNDERGROUND_CONDITIONS = "conditions/q/"; 
 }
