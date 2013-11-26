@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -33,8 +34,9 @@ public class FieldActivity extends Activity implements
 	SportTimer timer;
 	boolean timer_running = false;
 	String access_token, access_token_secret, json;
-	boolean logged_in;
+	boolean logged_in, twitter_broadcast, yourcast_broadcast; 
 	JSONObject match_info; 
+	SharedPreferences mSharedPreferences; 
 	
 	TextView clock, opponents; 
 	ImageView clockButton;
@@ -48,9 +50,14 @@ public class FieldActivity extends Activity implements
 		// Get information from the Intent. 
 		Intent intent = getIntent();
 		json = intent.getStringExtra(Constants.MATCH_INFO);
-		access_token = intent.getStringExtra(Constants.PREF_KEY_OAUTH_TOKEN);
-		access_token_secret = intent.getStringExtra(Constants.PREF_KEY_OAUTH_SECRET);
-		logged_in = intent.getBooleanExtra(Constants.PREF_KEY_TWITTER_LOGIN, false);
+		
+		// Get Shared Preferences. 
+		mSharedPreferences = getApplicationContext().getSharedPreferences("TwitterLogin", MODE_PRIVATE);	
+		access_token = mSharedPreferences.getString(Constants.PREF_KEY_OAUTH_TOKEN, ""); 
+		access_token_secret = mSharedPreferences.getString(Constants.PREF_KEY_OAUTH_SECRET, ""); 
+		logged_in = mSharedPreferences.getBoolean(Constants.PREF_KEY_TWITTER_LOGIN, false); 
+		twitter_broadcast = mSharedPreferences.getBoolean(Constants.TWITTER_BROADCAST, false); 
+		yourcast_broadcast = mSharedPreferences.getBoolean(Constants.YOURCAST_BROADCAST, false); 
 		
 		// Decrypt JSON. 
 		getJSON(); 
@@ -203,12 +210,13 @@ public class FieldActivity extends Activity implements
 			Toast.makeText(getApplicationContext(), liveCast,
 					Toast.LENGTH_SHORT).show();
 
-			if (logged_in) {
+			if (logged_in && twitter_broadcast) {
 				new updateTwitterStatus(this,
 						access_token, access_token_secret).execute(liveCast);
 			}
-
-			connection.broadcast(liveCast, width_proportion, height_proportion);
+			if (yourcast_broadcast) {
+				connection.broadcast(liveCast, width_proportion, height_proportion);
+			}
 		}
 	}
 

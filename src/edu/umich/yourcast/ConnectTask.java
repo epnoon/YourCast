@@ -29,6 +29,8 @@ import android.widget.Toast;
 
 
 public class ConnectTask extends AsyncTask<String, Boolean, Integer> {
+	String TAG = "MYMYConnectTask"; 
+	
 	// Connection stuff. 
 	private HttpClient httpclient = new DefaultHttpClient();
 	private HttpPost httppost = new HttpPost(Constants.POST_ADDRESS); 
@@ -70,6 +72,7 @@ public class ConnectTask extends AsyncTask<String, Boolean, Integer> {
 			e.printStackTrace();
 		}
 		String serialized_request = object.toString();
+		Log.d(TAG, serialized_request); 
 		
 		// Prepare data to be sent. 
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
@@ -98,11 +101,12 @@ public class ConnectTask extends AsyncTask<String, Boolean, Integer> {
 			response = new JSONObject(result);
 		} catch (JSONException e1) {
 			// TODO Auto-generated catch block
+			Log.d(TAG, "Failed JSONObject"); 
 			e1.printStackTrace();
 			return 1;
 		}
 		
-		if (params.length == 1) {
+		if (params.length == 0) {
 			// Don't create a session
 			return 0;
 		}	

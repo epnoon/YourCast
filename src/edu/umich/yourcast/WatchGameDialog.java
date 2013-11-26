@@ -68,8 +68,6 @@ public class WatchGameDialog extends DialogFragment {
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		
-		CharSequence[] charseq_items;
 		builder.setTitle(R.string.live_games)
 				.setItems(items, new DialogInterface.OnClickListener() {
 					@Override
@@ -81,7 +79,8 @@ public class WatchGameDialog extends DialogFragment {
 						 */
 						Log.d("MYMY", "id"+Integer.toString(id));
 						int session_num = sessions[id];
-						mListener.onSelectedGameClick(WatchGameDialog.this, session_num);
+						String session_title = (String) items[id]; 
+						mListener.onSelectedGameClick(WatchGameDialog.this, session_num, session_title);
 						
 					}
 				})
@@ -95,7 +94,7 @@ public class WatchGameDialog extends DialogFragment {
 	}
 
 	public interface WatchGameDialogListener {
-		public void onSelectedGameClick(WatchGameDialog dialog, int id);
+		public void onSelectedGameClick(WatchGameDialog dialog, int id, String title);
 	}
 
 	public String getMatchInfo() {

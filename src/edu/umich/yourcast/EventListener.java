@@ -1,19 +1,12 @@
 package edu.umich.yourcast;
 
+import android.util.Log;
 import android.widget.ListView;
 import android.app.FragmentManager;
 import android.content.Context;
 
 public class EventListener {
-	public static final String PTYPE_CREATE = "create_session";
-	public static final String PTYPE_BROADCAST = "broadcast";
-	public static final String PTYPE_POLL = "poll";
-	public static final String PTYPE_UPTODATE = "up_to_date";
-	public static final String PTYPE_EVENT = "event";
-	public static final String PTYPE_NEWUSER = "new_user";
-	public static final String PTYPE_EXCEPTION = "exception";
-	public static final String PTYPE_CONFIRM = "confirm_event";
-	public static final String PTYPE_GET_SESSIONS = "get_sessions";
+	String TAG = "MYMYEventListener"; 
 	
 	private static String user_id = "12345";
 	private static int session;

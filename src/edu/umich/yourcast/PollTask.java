@@ -26,23 +26,25 @@ import android.widget.ListView;
 // Background classes. 
 
 public class PollTask extends AsyncTask<Integer, Boolean, Integer>{
+	String TAG = "MYMYPollTask"; 
+	
 	// Connection vars. 
 	private HttpClient httpclient = new DefaultHttpClient();
 	private HttpPost httppost = new HttpPost(Constants.POST_ADDRESS); 
 	private HttpResponse httpresponse;
 	
-	
 	// Data. 
 	private int session; 
-	private int event_id; 
+	static private int event_id;
 	private String user_id; 
 	
 	// Helper JSON. 
 	JSONObject object = new JSONObject();
 	JSONObject eventobject = new JSONObject();
-	JSONObject response; 
+	JSONObject response, old_response; 
 	
 	// Other.
+	static int old_size = 0;  
 	String result = ""; 
 	private ListView listView;
 	private FansFieldActivity mActivity; 
@@ -109,7 +111,9 @@ public class PollTask extends AsyncTask<Integer, Boolean, Integer>{
 		try {
 			if (response.getString("type").equals(Constants.PTYPE_EVENT)) {
 				event_id = response.getInt("event_id");
+				if (event_id == old_size) { return 0; }
 				for (int x=0;x<100;x++) {
+					Log.d(TAG, "Running Update"); 
 					String curEvent = "event" + Integer.toString(x);
 					if (response.has(curEvent)) {
 						String eventMsg = response.getString(curEvent);
@@ -118,7 +122,7 @@ public class PollTask extends AsyncTask<Integer, Boolean, Integer>{
 						float eventX = Float.valueOf(eventJson.getString("x"));
 						float eventY = Float.valueOf(eventJson.getString("y")); 
 						livecasts.add(eventStr);
-						mActivity.addDot(eventX, eventY); 
+						mActivity.addDot(eventX, eventY, x); 
 					} else {
 						break;
 					}
@@ -139,14 +143,16 @@ public class PollTask extends AsyncTask<Integer, Boolean, Integer>{
 		return 0;
 	}
 	protected void onProgessUpdate(Boolean...prog){
-		if (new_array != null) {
+		if (new_array != null && event_id > old_size) {
 			Log.d("MYMY", "Updating new array!");
+			old_size = event_id; 
 			listView.setAdapter(new_array);
 		}
 	}
 	protected void onPostExecute(Integer res){
-		if (res == 0){
-			Log.d("MYMY", "Updating new array!");
+		if (res == 0 && event_id > old_size){
+			Log.d(TAG, "Updating new array!");
+			old_size = event_id; 
 			listView.setAdapter(new_array);
 		}
 	}

@@ -2,7 +2,6 @@ package edu.umich.yourcast;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -22,14 +21,11 @@ public class MainActivity extends FragmentActivity implements
 	// Internet Connection detector
 	private ConnectionDetector cd;
 
-	// Twitter Login.
-	private TwitterLogin twitterLogin; 
-
 	// Alert Dialog Manager
 	AlertDialogManager alert = new AlertDialogManager();
 
 	// Shared Preferences
-	public static SharedPreferences mSharedPreferences;
+	private SharedPreferences mSharedPreferences;
 
 	// Buttons
 	ImageButton loginButton;
@@ -45,11 +41,11 @@ public class MainActivity extends FragmentActivity implements
 		setContentView(R.layout.activity_main);
 		
 		// Thread for Twitter Login. 
-		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+		StrictMode.ThreadPolicy policy = 
+				new StrictMode.ThreadPolicy.Builder().permitAll().build();
 		StrictMode.setThreadPolicy(policy);
 
 		cd = new ConnectionDetector(getApplicationContext());
-		twitterLogin = new TwitterLogin(this); 
 		mSharedPreferences = getApplicationContext().getSharedPreferences(
 				"TwitterLogin", MODE_PRIVATE);		
 
@@ -68,7 +64,7 @@ public class MainActivity extends FragmentActivity implements
 		settingsButton = (TextView) findViewById(R.id.settingsbutton); 	 
 
 		// Loading Font Face
-		Typeface tf = Typeface.createFromAsset(getAssets(), Constants.FONT_PATH);
+		Typeface tf = Typeface.createFromAsset(getAssets(), Constants.FONT_PATH_B);
 
 		// Applying font
 		broadcastGame.setTypeface(tf);
@@ -99,11 +95,6 @@ public class MainActivity extends FragmentActivity implements
 	
 	private void goToSettings() {
 		Intent intent = new Intent(this, SettingsActivity.class);
-		intent.putExtra(Constants.PREF_KEY_OAUTH_TOKEN, access_token); 
-		intent.putExtra(Constants.PREF_KEY_OAUTH_SECRET, access_token_secret); 
-		intent.putExtra(Constants.PREF_KEY_TWITTER_LOGIN, logged_in); 
-		intent.putExtra(Constants.TWITTER_BROADCAST, twitter_broadcast); 
-		intent.putExtra(Constants.YOURCAST_BROADCAST, yourcast_broadcast); 
 		startActivity(intent);
 	}
 	
@@ -113,16 +104,14 @@ public class MainActivity extends FragmentActivity implements
 		logged_in = mSharedPreferences.getBoolean(Constants.PREF_KEY_TWITTER_LOGIN, false); 
 		twitter_broadcast = mSharedPreferences.getBoolean(Constants.TWITTER_BROADCAST, false); 
 		yourcast_broadcast = mSharedPreferences.getBoolean(Constants.YOURCAST_BROADCAST, false); 
-	}
-	
-	private void savePreferences() {
-		Editor e = mSharedPreferences.edit(); 
-		e.putString(Constants.PREF_KEY_OAUTH_TOKEN, access_token); 
-		e.putString(Constants.PREF_KEY_OAUTH_SECRET, access_token_secret); 
-		e.putBoolean(Constants.PREF_KEY_TWITTER_LOGIN, logged_in);
-		e.putBoolean(Constants.TWITTER_BROADCAST, twitter_broadcast); 
-		e.putBoolean(Constants.YOURCAST_BROADCAST, yourcast_broadcast); 
-		e.commit(); 
+		
+		Log.d(TAG, "token: " + access_token); 
+		Log.d(TAG, "secret: " + access_token); 
+		Log.d(TAG, "twitter: " + String.valueOf(twitter_broadcast)); 
+		Log.d(TAG, "yourcast: " + String.valueOf(yourcast_broadcast)); 
+		
+		
+		
 	}
 
 	@Override
@@ -150,15 +139,13 @@ public class MainActivity extends FragmentActivity implements
 	public void onDialogPositiveClick(NewGameDialog dialog) {
 		Intent intent = new Intent(this, FieldActivity.class);
 		intent.putExtra(Constants.MATCH_INFO, dialog.getMatchInfo());
-		intent.putExtra(Constants.PREF_KEY_OAUTH_TOKEN, access_token); 
-		intent.putExtra(Constants.PREF_KEY_OAUTH_SECRET, access_token_secret); 
-		intent.putExtra(Constants.PREF_KEY_TWITTER_LOGIN, logged_in); 
 		startActivity(intent);
 	}
 
 	@Override
-	public void onSelectedGameClick(WatchGameDialog dialog, int id) {
+	public void onSelectedGameClick(WatchGameDialog dialog, int id, String title) {
 		Intent intent = new Intent(this, FansFieldActivity.class);
+		intent.putExtra("sessionTitle", title); 
 		intent.putExtra("sessionNum", id);
 		startActivity(intent);
 	}

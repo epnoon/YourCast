@@ -15,6 +15,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class TwitterLogin {
+	String TAG = "TwitterLogin"; 
+	
 	private static Twitter twitter;
 	private static RequestToken requestToken;
 
@@ -22,6 +24,9 @@ public class TwitterLogin {
 
 	private String access_token, access_token_secret;
 	boolean logged_in = false;
+	
+	// Alert Dialog Manager
+	AlertDialogManager alert = new AlertDialogManager();
 
 	public TwitterLogin(Activity a, String access_token,
 			String access_token_secret) {
@@ -60,6 +65,10 @@ public class TwitterLogin {
 		}
 
 	}
+	
+	public void logout() {
+		logged_in = false; 
+	}
 
 	public String getAccessToken() {
 		return access_token;
@@ -95,6 +104,8 @@ public class TwitterLogin {
 				// store them in application preferences
 				access_token = accessToken.getToken();
 				access_token_secret = accessToken.getTokenSecret();
+				Log.d(TAG, "token: " + access_token); 
+				Log.d(TAG, "secret: " + access_token_secret);  
 				logged_in = true;
 
 				Log.e("Twitter OAuth Token", "> " + accessToken.getToken());
@@ -104,7 +115,6 @@ public class TwitterLogin {
 						"Login Failed", Toast.LENGTH_LONG).show();
 				logged_in = false;
 				Log.e("Twitter Login Error", "> " + e.getMessage());
-				e.printStackTrace();
 			}
 		}
 	}

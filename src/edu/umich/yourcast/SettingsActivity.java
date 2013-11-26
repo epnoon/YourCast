@@ -2,8 +2,11 @@ package edu.umich.yourcast;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -12,33 +15,38 @@ import android.widget.TextView;
 import android.widget.CheckBox;
 
 public class SettingsActivity extends Activity {
+	String TAG = "TwitterSettings"; 
 
 	TextView settingsButton, yourcastText, twitterText, broadcastText;
 	CheckBox yourcastCheck, twitterCheck;
 	Button saveButton; 
 
 	String access_token, access_token_secret; 
-	boolean logged_in, twitter_broadcast, yourcast_broadcast;  
+	boolean logged_in, twitter_broadcast, yourcast_broadcast; 
+	
+	// Shared Preferences. 
+	private SharedPreferences mSharedPreferences;
 	
 	// Twitter Login.
 	private TwitterLogin twitterLogin; 
 
+	// Alert Dialog Manager
+	AlertDialogManager alert = new AlertDialogManager();
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		// Thread for Twitter Login. 
+		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+		StrictMode.setThreadPolicy(policy);
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.settings);
-
-		twitterLogin = new TwitterLogin(this); 
 		
-		// Get information from the Intent. 
-		Intent intent = getIntent();
-		access_token = intent.getStringExtra(Constants.PREF_KEY_OAUTH_TOKEN);
-		access_token_secret = intent.getStringExtra(Constants.PREF_KEY_OAUTH_SECRET);
-		logged_in = intent.getBooleanExtra(Constants.PREF_KEY_TWITTER_LOGIN, false);
-		twitter_broadcast = intent.getBooleanExtra(Constants.TWITTER_BROADCAST, false); 
-		yourcast_broadcast = intent.getBooleanExtra(Constants.YOURCAST_BROADCAST, true); 
-		
+		mSharedPreferences = getApplicationContext().getSharedPreferences(
+				"TwitterLogin", MODE_PRIVATE);	
 
+		getPreferences(); 
+		
 		settingsButton = (TextView) findViewById(R.id.settingsbutton);
 		yourcastText = (TextView) findViewById(R.id.yourcastText);
 		twitterText = (TextView) findViewById(R.id.twitterText);
@@ -51,15 +59,23 @@ public class SettingsActivity extends Activity {
 		
 		if (twitter_broadcast) {
 			twitterCheck.setChecked(true); 
+		} else {
+			twitterCheck.setChecked(false); 
 		}
 		
 		if (yourcast_broadcast) {
-			twitterCheck.setChecked(true); 
+			yourcastCheck.setChecked(true); 
+		} else {
+			yourcastCheck.setChecked(false); 
 		}
 		
-		
-		// Parse on callback. 
-		if (!logged_in) {
+		Log.d(TAG, "Login: " + String.valueOf(logged_in)); 
+
+		if (logged_in) {
+			twitterLogin = new TwitterLogin(this, access_token, access_token_secret); 
+		} else {
+			twitterLogin = new TwitterLogin(this); 
+			// Parse if call back. 
 			twitterLogin.parseURI(getIntent().getData()); 
 			if (twitterLogin.getLoggedIn()) {
 				logged_in = twitterLogin.getLoggedIn(); 
@@ -67,8 +83,9 @@ public class SettingsActivity extends Activity {
 				access_token_secret = twitterLogin.getAccessTokenSecret(); 
 				twitterCheck.setChecked(true); 
 				twitter_broadcast = true; 
-			}
+			} 
 		}
+		
 		
 		if (logged_in) {
 			twitterText.setText("Twitter (as " + twitterLogin.getName() + ")"); 
@@ -110,12 +127,50 @@ public class SettingsActivity extends Activity {
 			}
 		});
 		
-
+		saveButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				goToMain(); 
+			}
+		});
 		
-		
-
-
-
 	}
+	
+	private void goToMain() {
+		if (!twitter_broadcast) {
+			twitterLogin.logout(); 
+			logged_in = false; 
+			access_token = "";
+			access_token_secret = "";
+		}
+		savePreferences(); 
+		Intent intent = new Intent(this, MainActivity.class);
+		startActivity(intent);
+	}
+	
+	private void getPreferences() {
+		Log.d(TAG, "Getting Preferences"); 
+		access_token = mSharedPreferences.getString(Constants.PREF_KEY_OAUTH_TOKEN, ""); 
+		access_token_secret = mSharedPreferences.getString(Constants.PREF_KEY_OAUTH_SECRET, ""); 
+		logged_in = mSharedPreferences.getBoolean(Constants.PREF_KEY_TWITTER_LOGIN, false); 
+		twitter_broadcast = mSharedPreferences.getBoolean(Constants.TWITTER_BROADCAST, false); 
+		yourcast_broadcast = mSharedPreferences.getBoolean(Constants.YOURCAST_BROADCAST, false); 
+		Log.d(TAG, "token: " + access_token); 
+		Log.d(TAG, "secret: " + access_token_secret); 
+		Log.d(TAG, "twitter: " + String.valueOf(twitter_broadcast)); 
+		Log.d(TAG, "yourcast: " + String.valueOf(yourcast_broadcast)); 
+	}
+	
+	private void savePreferences() {
+		Log.d(TAG, "Saving Preferences"); 
+		Editor e = mSharedPreferences.edit(); 
+		e.putString(Constants.PREF_KEY_OAUTH_TOKEN, access_token); 
+		e.putString(Constants.PREF_KEY_OAUTH_SECRET, access_token_secret); 
+		e.putBoolean(Constants.PREF_KEY_TWITTER_LOGIN, logged_in);
+		e.putBoolean(Constants.TWITTER_BROADCAST, twitter_broadcast); 
+		e.putBoolean(Constants.YOURCAST_BROADCAST, yourcast_broadcast); 
+		e.commit(); 
+	}
+
 
 }
