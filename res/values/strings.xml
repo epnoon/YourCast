@@ -8,6 +8,8 @@
     <string name="enter_game_info">Enter Game Info</string>
     <string name="watch_game">WATCH</string>
     <string name="live_games">Live Games</string>
+    <string name="existing_games">Existing Games</string>
+    <string name="what_do_you_want_to_broadcast">What do you want to broadcast?</string>
     <string name="home_team">Home Team</string>
     <string name="away_team">Away Team</string>
     <string name="cancel">Cancel</string>

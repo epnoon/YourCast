@@ -44,7 +44,7 @@ public class WatchGameDialog extends DialogFragment {
 		
 	}
 	
-	// Override the Fragment.onAttach() method to instantiate thes
+	// Override the Fragment.onAttach() method to instantiate this
 	// NoticeDialogListener
 	@Override
 	public void onAttach(Activity activity) {

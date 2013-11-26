@@ -1,5 +1,7 @@
 package edu.umich.yourcast;
 
+import edu.umich.yourcast.BroadcastGameDialog.BroadcastGameDialogListener;
+import edu.umich.yourcast.ExistingGameDialog.ExistingGameDialogListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,7 +22,9 @@ import android.view.View.OnClickListener;
 
 public class MainActivity extends FragmentActivity implements
 		NewGameDialog.NewGameDialogListener,
-		WatchGameDialog.WatchGameDialogListener {
+		ExistingGameDialog.ExistingGameDialogListener,
+		WatchGameDialog.WatchGameDialogListener,
+		BroadcastGameDialog.BroadcastGameDialogListener{
 	private String TAG = "MainActivity";
 
 	// Internet Connection detector
@@ -79,7 +83,7 @@ public class MainActivity extends FragmentActivity implements
 		broadcastGame.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				newGameButtonClick(view);
+				broadcastGameButtonClick(view);
 			}
 		});
 
@@ -129,13 +133,20 @@ public class MainActivity extends FragmentActivity implements
 		return true;
 	}
 
+	public void broadcastGameButtonClick(View view) {
+	    BroadcastGameDialog dialog = new BroadcastGameDialog();
+
+	    // Shows dialog.
+	    dialog.show(getFragmentManager(), "BroadcastGameDialog");
+	}
+	/*
 	public void newGameButtonClick(View view) {
 		NewGameDialog dialog = new NewGameDialog();
 
 		// Shows dialog.
 		dialog.show(getFragmentManager(), "NewGameDialog");
 	}
-
+	*/
 	public void watchGameButtonClick(View view) {
 		WatchGameDialog dialog = new WatchGameDialog();
 
@@ -156,6 +167,30 @@ public class MainActivity extends FragmentActivity implements
 		intent.putExtra("sessionTitle", title);
 		intent.putExtra("sessionNum", id);
 		startActivity(intent);
+	}
+	
+	@Override
+	public void onSelectedExistingGameClick(ExistingGameDialog dialog, int id, String title) {
+		Intent intent = new Intent(this, FieldActivity.class);
+		intent.putExtra("sessionTitle", title);
+		intent.putExtra("sessionNum", id);
+		startActivity(intent);
+	}
+	
+	@Override
+	public void onOptionClick(BroadcastGameDialog dialog, int id) {
+		/*Intent intent = new Intent(this, FansFieldActivity.class);
+		intent.putExtra("sessionTitle", title);
+		intent.putExtra("sessionNum", id);
+		startActivity(intent);*/
+	    if (id == 0) {
+		NewGameDialog newGameDialog = new NewGameDialog();
+		// Shows dialog.
+		newGameDialog.show(getFragmentManager(), "NewGameDialog");
+	    } else if (id == 1) {
+		ExistingGameDialog existingGameDialog = new ExistingGameDialog();
+		existingGameDialog.show(getFragmentManager(), "existingGameDialog");
+	    } else throw new ClassCastException(this.toString() + " encounterd problem with option selecting");
 	}
 
 	public void doChecks() {
