@@ -1,11 +1,7 @@
 package edu.umich.yourcast;
 
 import java.util.ArrayList;
-import org.json.*;
 import java.util.HashMap;
-
-import android.text.Selection;
-import android.util.Log;
 
 public class RugbyEventTree extends SportEventTree {
 

@@ -1,5 +1,6 @@
 package edu.umich.yourcast;
 
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -8,15 +9,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import java.util.HashMap;
 
 public class FansFieldActivity extends Activity {
 	private class Locations {
@@ -127,5 +124,10 @@ public class FansFieldActivity extends Activity {
 				fieldView.addView(iv, params);
 			}
 		});
+	}
+	
+	public void infoButtonClick(View view) {
+		GameInfoDialog dialog = GameInfoDialog.create(getIntent().getStringExtra(Constants.GAME_INFO));
+		dialog.show(getFragmentManager(), "GameInfoDialog");
 	}
 }

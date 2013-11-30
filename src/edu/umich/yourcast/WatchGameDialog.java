@@ -1,22 +1,18 @@
 package edu.umich.yourcast;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
-import edu.umich.yourcast.NewGameDialog.NewGameDialogListener;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Toast;
 import android.util.Log;
-import org.json.*;
 
 public class WatchGameDialog extends DialogFragment {
 	// private String gamesList;
@@ -80,8 +76,7 @@ public class WatchGameDialog extends DialogFragment {
 						Log.d("MYMY", "id"+Integer.toString(id));
 						int session_num = sessions[id];
 						String session_title = (String) items[id]; 
-						mListener.onSelectedGameClick(WatchGameDialog.this, session_num, session_title);
-						
+						mListener.onSelectedGameClick(WatchGameDialog.this, getGameInfo(session_num, session_title), session_num, session_title);
 					}
 				})
 				.setNegativeButton(R.string.cancel,
@@ -94,11 +89,22 @@ public class WatchGameDialog extends DialogFragment {
 	}
 
 	public interface WatchGameDialogListener {
-		public void onSelectedGameClick(WatchGameDialog dialog, int id, String title);
+		public void onSelectedGameClick(WatchGameDialog dialog, String game_info, int session_num, String session_title);
 	}
 
-	public String getMatchInfo() {
-		return null;
+	// Need to be revised to put in real-time game info
+	public String getGameInfo(int session_num, String session_title) {
+	    	HashMap<String, String> game_info;
+	    	game_info = new HashMap<String, String>();
+	    	game_info.put("session_num", String.valueOf(session_num));
+	    	game_info.put("session_title", session_title);
+	    	JSONObject object = new JSONObject();
+		try {
+			object = JsonHelper.toJSON(game_info);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return object.toString();
 	}
 
 }

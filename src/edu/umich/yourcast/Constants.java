@@ -15,6 +15,7 @@ public class Constants {
 	static final String URL_TWITTER_OAUTH_TOKEN = "oauth_token";
 
 	static final String MATCH_INFO = "edu.umich.yourcast.match_info";
+	static final String GAME_INFO = "edu.umich.yourcast.match_info";
 	
 	// Font path
 	static final String FONT_PATH = "fonts/UrbanClass.ttf";

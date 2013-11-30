@@ -1,7 +1,5 @@
 package edu.umich.yourcast;
 
-import android.os.CountDownTimer;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 

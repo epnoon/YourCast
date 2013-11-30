@@ -20,9 +20,6 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import edu.umich.yourcast.Constants;
-import edu.umich.yourcast.EventListener;
-
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;

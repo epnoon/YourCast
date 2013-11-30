@@ -5,7 +5,6 @@ import java.util.Iterator;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import edu.umich.yourcast.WatchGameDialog.WatchGameDialogListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;

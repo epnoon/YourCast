@@ -1,24 +1,17 @@
 package edu.umich.yourcast;
 
-import edu.umich.yourcast.BroadcastGameDialog.BroadcastGameDialogListener;
-import edu.umich.yourcast.ExistingGameDialog.ExistingGameDialogListener;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.view.View.OnClickListener;
 
 public class MainActivity extends FragmentActivity implements
 		NewGameDialog.NewGameDialogListener,
@@ -162,10 +155,11 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	@Override
-	public void onSelectedGameClick(WatchGameDialog dialog, int id, String title) {
+	public void onSelectedGameClick(WatchGameDialog dialog, String game_info, int session_num, String session_title) {
 		Intent intent = new Intent(this, FansFieldActivity.class);
-		intent.putExtra("sessionTitle", title);
-		intent.putExtra("sessionNum", id);
+		intent.putExtra(Constants.GAME_INFO, game_info);
+		intent.putExtra("sessionNum", session_num);
+		intent.putExtra("sessionTitle", session_title);
 		startActivity(intent);
 	}
 	

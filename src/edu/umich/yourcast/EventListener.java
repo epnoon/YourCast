@@ -1,9 +1,8 @@
 package edu.umich.yourcast;
 
-import android.util.Log;
-import android.widget.ListView;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.widget.ListView;
 
 public class EventListener {
 	String TAG = "MYMYEventListener"; 
