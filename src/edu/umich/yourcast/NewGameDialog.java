@@ -33,7 +33,7 @@ public class NewGameDialog extends DialogFragment {
 			object.put("sport", RUGBY); 
 			object.put("home team", home_team.getText().toString());
 			object.put("away team", away_team.getText().toString());
-			object.put("session pass", session_pass.getText().toString());
+			object.put("session_pass", session_pass.getText().toString());
 			object.put("time", time.getText().toString());
 
 		} catch (JSONException e) {
