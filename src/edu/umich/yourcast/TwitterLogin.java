@@ -12,11 +12,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class TwitterLogin {
-	String TAG = "TwitterLogin"; 
-	
+	String TAG = "TwitterLogin";
+
 	private static Twitter twitter;
 	private static RequestToken requestToken;
 
@@ -24,7 +25,9 @@ public class TwitterLogin {
 
 	private String access_token, access_token_secret;
 	boolean logged_in = false;
-	
+
+	TextView twitterText;
+
 	// Alert Dialog Manager
 	AlertDialogManager alert = new AlertDialogManager();
 
@@ -34,10 +37,13 @@ public class TwitterLogin {
 		this.access_token_secret = access_token_secret;
 		this.logged_in = true;
 		this.mActivity = a;
+		twitterText = (TextView) mActivity.findViewById(R.id.twitterText);
+		showName();
 	}
 
 	public TwitterLogin(Activity a) {
 		this.mActivity = a;
+		twitterText = (TextView) mActivity.findViewById(R.id.twitterText);
 	};
 
 	public void login() {
@@ -65,9 +71,9 @@ public class TwitterLogin {
 		}
 
 	}
-	
+
 	public void logout() {
-		logged_in = false; 
+		logged_in = false;
 	}
 
 	public String getAccessToken() {
@@ -104,9 +110,10 @@ public class TwitterLogin {
 				// store them in application preferences
 				access_token = accessToken.getToken();
 				access_token_secret = accessToken.getTokenSecret();
-				Log.d(TAG, "token: " + access_token); 
-				Log.d(TAG, "secret: " + access_token_secret);  
+				Log.d(TAG, "token: " + access_token);
+				Log.d(TAG, "secret: " + access_token_secret);
 				logged_in = true;
+				showName(); 
 
 				Log.e("Twitter OAuth Token", "> " + accessToken.getToken());
 			} catch (Exception e) {
@@ -119,22 +126,17 @@ public class TwitterLogin {
 		}
 	}
 
-	public String getName() {
+	public void showName() {
 		try {
-			if (!logged_in) {
-				return "";
-			} else {
-				AccessToken accessToken = new AccessToken(access_token,
-						access_token_secret);
-				long userId = accessToken.getUserId();
-				User user = twitter.showUser(userId);
-				return user.getScreenName();
-			}
+			AccessToken accessToken = new AccessToken(access_token,
+					access_token_secret);
+			long userId = accessToken.getUserId();
+			User user = twitter.showUser(userId);
+			twitterText.setText("Twitter (as " + user.getScreenName() + ")"); 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return "";
 	}
 
 }

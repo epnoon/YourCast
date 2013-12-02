@@ -1,5 +1,7 @@
 package edu.umich.yourcast;
 
+import java.util.HashMap;
+
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -16,8 +18,8 @@ public class RugbySport extends Sport {
 	}
 
 	@Override
-	public RugbyTimer getClock(String time, TextView t, ImageView i) {
-		return new RugbyTimer(time, t, i); 
+	public RugbyTimer getClock(String time, TextView t, ImageView i, HashMap<String, String> g) {
+		return new RugbyTimer(time, t, i, g); 
 	}
 
 	@Override

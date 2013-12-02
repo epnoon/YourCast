@@ -30,45 +30,52 @@ public class FieldActivity extends Activity implements
 	Sport sport;
 	SportEventTree eventTree;
 	EventListener connection;
-	HashMap<String, String> game_info;
+	public HashMap<String, String> game_info = new HashMap<String, String>();
 	String home_team, away_team, time, sport_name, session_pass, session_id;
 	ArrayList<String> currentWords;
 	int homeScore = 0, awayScore = 0;
 	SportTimer timer;
 	boolean timer_running = false;
 	String access_token, access_token_secret, json;
-	boolean logged_in, twitter_broadcast, yourcast_broadcast; 
-	JSONObject match_info; 
-	SharedPreferences mSharedPreferences; 
-	Weather weather; 
-	
-	TextView clock, opponents; 
+	boolean logged_in, twitter_broadcast, yourcast_broadcast;
+	JSONObject match_info;
+	SharedPreferences mSharedPreferences;
+	Weather weather;
+
+	TextView clock, opponents;
 	ImageView clockButton;
-	RelativeLayout fieldView; 
+	RelativeLayout fieldView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.broadcaster_interface);
-		
-		// Get information from the Intent. 
+
+		// Get information from the Intent.
 		Intent intent = getIntent();
 		if (intent.hasExtra(Constants.MATCH_INFO)) {
 			json = intent.getStringExtra(Constants.MATCH_INFO);
 			Log.d("Got match info", json);
-			getJSON(); 
+			getJSON();
+			game_info.put("Home Team", home_team);
+			game_info.put("Away Team", away_team);
 		}
-	
-		
-		// Get Shared Preferences. 
-		mSharedPreferences = getApplicationContext().getSharedPreferences("TwitterLogin", MODE_PRIVATE);	
-		access_token = mSharedPreferences.getString(Constants.PREF_KEY_OAUTH_TOKEN, ""); 
-		access_token_secret = mSharedPreferences.getString(Constants.PREF_KEY_OAUTH_SECRET, ""); 
-		logged_in = mSharedPreferences.getBoolean(Constants.PREF_KEY_TWITTER_LOGIN, false); 
-		twitter_broadcast = mSharedPreferences.getBoolean(Constants.TWITTER_BROADCAST, false); 
-		yourcast_broadcast = mSharedPreferences.getBoolean(Constants.YOURCAST_BROADCAST, false); 
 
-		// Select Sport. 
+		// Get Shared Preferences.
+		mSharedPreferences = getApplicationContext().getSharedPreferences(
+				"TwitterLogin", MODE_PRIVATE);
+		access_token = mSharedPreferences.getString(
+				Constants.PREF_KEY_OAUTH_TOKEN, "");
+		access_token_secret = mSharedPreferences.getString(
+				Constants.PREF_KEY_OAUTH_SECRET, "");
+		logged_in = mSharedPreferences.getBoolean(
+				Constants.PREF_KEY_TWITTER_LOGIN, false);
+		twitter_broadcast = mSharedPreferences.getBoolean(
+				Constants.TWITTER_BROADCAST, false);
+		yourcast_broadcast = mSharedPreferences.getBoolean(
+				Constants.YOURCAST_BROADCAST, false);
+
+		// Select Sport.
 		if (sport_name.equals(Constants.RUGBY)) {
 			sport = new RugbySport();
 		} else {
@@ -76,31 +83,38 @@ public class FieldActivity extends Activity implements
 		}
 
 		// Testing.
-		if (home_team.isEmpty()) { home_team = "Michigan"; }
-		if (away_team.isEmpty()) { away_team = "Ohio St."; }
-		if (time.isEmpty() || time == null) { time = "80"; }
-		if (session_pass.isEmpty()) { session_pass = ""; }
+		if (home_team.isEmpty()) {
+			home_team = "Michigan";
+		}
+		if (away_team.isEmpty()) {
+			away_team = "Ohio St.";
+		}
+		if (time.isEmpty() || time == null) {
+			time = "80";
+		}
+		if (session_pass.isEmpty()) {
+			session_pass = "";
+		}
 
-		// Get Views. 
+		// Get Views.
 		clock = (TextView) findViewById(R.id.timeText);
 		clockButton = (ImageView) findViewById(R.id.timeButton);
 		opponents = (TextView) findViewById(R.id.opponents);
 		fieldView = (RelativeLayout) findViewById(R.id.fieldlayout);
-		
-		// Set timer. 
-		timer = sport.getClock(time, clock, clockButton);
+
+		// Set timer.
+		timer = sport.getClock(time, clock, clockButton, game_info);
 
 		// Set title.
 		opponents.setText(home_team + " vs. " + away_team);
 
-		// Set field picture. 
+		// Set field picture.
 		fieldView.setBackgroundResource(sport.getPictureID());
 
-		
 		fieldView.setOnLongClickListener(new OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
-				// Reset words arraylist. 
+				// Reset words arraylist.
 				currentWords = new ArrayList<String>();
 				showEventPromptDialog();
 				return true;
@@ -115,28 +129,29 @@ public class FieldActivity extends Activity implements
 				return false;
 			}
 		});
-		
+
 		// Location stuff.
-		LocationManager locationManager = 
-				(LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-		Location location = 
-				locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-		
-		weather = new Weather(location); 
+		LocationManager locationManager = (LocationManager) this
+				.getSystemService(Context.LOCATION_SERVICE);
+		Location location = locationManager
+				.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+		weather = new Weather(location, this);
 
 		Log.d("MYMY", "Connecting to server");
-		Toast.makeText(getApplicationContext(), "Connecting", Toast.LENGTH_SHORT).show();
+		Toast.makeText(getApplicationContext(), "Connecting",
+				Toast.LENGTH_SHORT).show();
 		connection = new EventListener(getApplicationContext());
 		if (session_id.equals("")) {
 			try {
 				String gameName = home_team + " vs " + away_team;
-				Log.d("MYMY", "password: "+session_pass);
-				connection.Connect(gameName, session_pass, home_team, away_team, time);
+				Log.d("MYMY", "password: " + session_pass);
+				connection.Connect(gameName, session_pass, home_team,
+						away_team, time);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
-		else {
+		} else {
 			connection.session = Integer.parseInt(session_id);
 		}
 	}
@@ -159,16 +174,6 @@ public class FieldActivity extends Activity implements
 	}
 
 	public String getGameInfo() {
-		game_info = new HashMap<String, String>();
-		game_info.put("Home Team", home_team);
-		game_info.put("Away Team", away_team);
-		game_info.put("Game Score", homeScore + " - " + awayScore);
-		game_info.put("Game Time", time);
-		game_info.put("Weather", (String) weather.getWeather("weather")); 
-		game_info.put("Temp", 
-				weather.getWeather("temp_f").toString() + (char) 0x00B0 + "F"); 
-		game_info.put("Wind", weather.getWeather("wind_mph").toString() + " mph"); 
-
 		JSONObject object = new JSONObject();
 		try {
 			object = JsonHelper.toJSON(game_info);
@@ -177,7 +182,7 @@ public class FieldActivity extends Activity implements
 		}
 		return object.toString();
 	}
-	
+
 	private void getJSON() {
 		try {
 			match_info = new JSONObject(json);
@@ -190,13 +195,13 @@ public class FieldActivity extends Activity implements
 			if (match_info.has("session_id")) {
 				session_id = (String) match_info.getString("session_id");
 			}
-			
+
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void infoButtonClick(View view) {
 		GameInfoDialog dialog = GameInfoDialog.create(getGameInfo());
 		dialog.show(getFragmentManager(), "GameInfoDialog");
@@ -213,20 +218,20 @@ public class FieldActivity extends Activity implements
 		} else {
 			ImageView iv;
 			RelativeLayout.LayoutParams params;
-			
+
 			float layout_width = fieldView.getWidth();
-			float layout_height = fieldView.getHeight(); 
+			float layout_height = fieldView.getHeight();
 
 			String width_proportion = String.valueOf(touchX / layout_width);
 			String height_proportion = String.valueOf(touchY / layout_height);
-			
-			int diameter = (int) Math.round(0.02 * layout_height); 
+
+			int diameter = (int) Math.round(0.02 * layout_height);
 
 			iv = new ImageView(this);
 			iv.setImageResource(R.drawable.orangecircle);
 			params = new RelativeLayout.LayoutParams(diameter, diameter);
-			params.leftMargin = (int) touchX - diameter/2;
-			params.topMargin = (int) touchY - diameter/2;
+			params.leftMargin = (int) touchX - diameter / 2;
+			params.topMargin = (int) touchY - diameter / 2;
 			fieldView.addView(iv, params);
 
 			String liveCast = eventTree.createText(currentWords);
@@ -234,20 +239,26 @@ public class FieldActivity extends Activity implements
 					|| eventTree.getAwayPoints(currentWords) > 0) {
 				homeScore += eventTree.getHomePoints(currentWords);
 				awayScore += eventTree.getAwayPoints(currentWords);
+				game_info.put("Game Score", homeScore + " - " + awayScore);
 				liveCast += " " + home_team + " " + homeScore + " - "
 						+ away_team + " " + awayScore + ".";
 			}
 
-			Toast.makeText(getApplicationContext(), liveCast,
-					Toast.LENGTH_SHORT).show();
+			broadcastLiveCast(liveCast, width_proportion, height_proportion); 
+		}
 
-			if (logged_in && twitter_broadcast) {
-				new updateTwitterStatus(this,
-						access_token, access_token_secret).execute(liveCast);
-			}
-			if (yourcast_broadcast) {
-				connection.broadcast(liveCast, width_proportion, height_proportion, session_pass);
-			}
+	}
+
+	public void broadcastLiveCast(String liveCast, String width, String height) {
+		Toast.makeText(getApplicationContext(), liveCast,
+				Toast.LENGTH_SHORT).show();
+
+		if (logged_in && twitter_broadcast) {
+			new updateTwitterStatus(this, access_token, access_token_secret)
+					.execute(liveCast);
+		}
+		if (yourcast_broadcast) {
+			connection.broadcast(liveCast, width, height, session_pass);
 		}
 	}
 

@@ -70,6 +70,13 @@ public class SettingsActivity extends Activity {
 		}
 		
 		Log.d(TAG, "Login: " + String.valueOf(logged_in)); 
+		
+		if (logged_in) {
+			twitterText.setText("Twitter (getting name)"); 
+		} else {
+
+			twitterText.setText("Twitter (not logged in)"); 
+		}
 
 		if (logged_in) {
 			twitterLogin = new TwitterLogin(this, access_token, access_token_secret); 
@@ -86,13 +93,6 @@ public class SettingsActivity extends Activity {
 			} 
 		}
 		
-		
-		if (logged_in) {
-			twitterText.setText("Twitter (as " + twitterLogin.getName() + ")"); 
-		} else {
-
-			twitterText.setText("Twitter (not logged in)"); 
-		}
 
 		// Title
 		Typeface tf = Typeface

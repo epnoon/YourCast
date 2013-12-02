@@ -80,7 +80,9 @@ public class WeatherStation extends AsyncTask<String, String, Integer> {
 	}
 
 	protected void onPostExecute(Integer result) {
-
+		if (result == 0) {
+			mWeather.showWeather(); 
+		}
 	}
 
 }

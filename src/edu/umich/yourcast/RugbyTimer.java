@@ -1,5 +1,7 @@
 package edu.umich.yourcast;
 
+import java.util.HashMap;
+
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -11,19 +13,24 @@ public class RugbyTimer extends SportTimer {
 	private long total, interval = MINUTE;
 	STimer timer;
 	boolean first_half = true; 
+	HashMap<String, String> gameInfo; 
 	
-	public RugbyTimer(String time, TextView t, ImageView i) {
+	public RugbyTimer(String time, TextView t, ImageView i, HashMap<String, String> game_info) {
 		// TODO Auto-generated constructor stub
 		super(time, t, i); 
 		total = Long.parseLong(time) * MINUTE;
 		this.textview = t; 
 		this.imagebutton = i; 
+		this.gameInfo = game_info; 
 	}
 
 	@Override
 	public void onTick() {
 		total_time += 1;
 		textview.setText(String.valueOf(total_time) + "'");
+		gameInfo.put("Time", String.valueOf(total_time)); 
+		
+		
 	}
 
 	@Override
