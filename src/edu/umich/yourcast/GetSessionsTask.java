@@ -18,12 +18,13 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-public class GetSessionsTask extends AsyncTask<WatchGameDialog, Boolean, Integer> {
+public class GetSessionsTask extends AsyncTask<GameListDialog, Boolean, Integer> {
 	// Connection vars. 
 	private HttpClient httpclient = new DefaultHttpClient();
 	private HttpPost httppost = new HttpPost(Constants.POST_ADDRESS); 
@@ -42,7 +43,7 @@ public class GetSessionsTask extends AsyncTask<WatchGameDialog, Boolean, Integer
 		fragmentManager = fm; 
 	}
 	
-	protected Integer doInBackground(WatchGameDialog... dialogs) {
+	protected Integer doInBackground(GameListDialog... dialogs) {
 		// Serialize request. 
 		try {
 			object.put("type", Constants.PTYPE_GET_SESSIONS);

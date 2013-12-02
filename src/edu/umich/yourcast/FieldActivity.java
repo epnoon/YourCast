@@ -31,7 +31,7 @@ public class FieldActivity extends Activity implements
 	SportEventTree eventTree;
 	EventListener connection;
 	HashMap<String, String> game_info;
-	String home_team, away_team, time, sport_name;
+	String home_team, away_team, time, sport_name, session_pass, session_id;
 	ArrayList<String> currentWords;
 	int homeScore = 0, awayScore = 0;
 	SportTimer timer;
@@ -53,7 +53,12 @@ public class FieldActivity extends Activity implements
 		
 		// Get information from the Intent. 
 		Intent intent = getIntent();
-		json = intent.getStringExtra(Constants.MATCH_INFO);
+		if (intent.hasExtra(Constants.MATCH_INFO)) {
+			json = intent.getStringExtra(Constants.MATCH_INFO);
+			Log.d("Got match info", json);
+			getJSON(); 
+		}
+	
 		
 		// Get Shared Preferences. 
 		mSharedPreferences = getApplicationContext().getSharedPreferences("TwitterLogin", MODE_PRIVATE);	
@@ -62,12 +67,9 @@ public class FieldActivity extends Activity implements
 		logged_in = mSharedPreferences.getBoolean(Constants.PREF_KEY_TWITTER_LOGIN, false); 
 		twitter_broadcast = mSharedPreferences.getBoolean(Constants.TWITTER_BROADCAST, false); 
 		yourcast_broadcast = mSharedPreferences.getBoolean(Constants.YOURCAST_BROADCAST, false); 
-		
-		// Decrypt JSON. 
-		getJSON(); 
 
 		// Select Sport. 
-		if (sport_name.equals(NewGameDialog.RUGBY)) {
+		if (sport_name.equals(Constants.RUGBY)) {
 			sport = new RugbySport();
 		} else {
 			assert false;
@@ -76,7 +78,8 @@ public class FieldActivity extends Activity implements
 		// Testing.
 		if (home_team.isEmpty()) { home_team = "Michigan"; }
 		if (away_team.isEmpty()) { away_team = "Ohio St."; }
-		if (time.isEmpty()) { time = "80"; }
+		if (time.isEmpty() || time == null) { time = "80"; }
+		if (session_pass.isEmpty()) { session_pass = ""; }
 
 		// Get Views. 
 		clock = (TextView) findViewById(R.id.timeText);
@@ -124,11 +127,17 @@ public class FieldActivity extends Activity implements
 		Log.d("MYMY", "Connecting to server");
 		Toast.makeText(getApplicationContext(), "Connecting", Toast.LENGTH_SHORT).show();
 		connection = new EventListener(getApplicationContext());
-		try {
-			String gameName = home_team + " vs " + away_team;
-			connection.Connect(gameName);
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (session_id.equals("")) {
+			try {
+				String gameName = home_team + " vs " + away_team;
+				Log.d("MYMY", "password: "+session_pass);
+				connection.Connect(gameName, session_pass, home_team, away_team, time);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		else {
+			connection.session = Integer.parseInt(session_id);
 		}
 	}
 
@@ -176,6 +185,12 @@ public class FieldActivity extends Activity implements
 			home_team = (String) match_info.getString("home team");
 			away_team = (String) match_info.getString("away team");
 			time = (String) match_info.getString("time");
+			session_pass = (String) match_info.getString("session_pass");
+			session_id = "";
+			if (match_info.has("session_id")) {
+				session_id = (String) match_info.getString("session_id");
+			}
+			
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -231,7 +246,7 @@ public class FieldActivity extends Activity implements
 						access_token, access_token_secret).execute(liveCast);
 			}
 			if (yourcast_broadcast) {
-				connection.broadcast(liveCast, width_proportion, height_proportion);
+				connection.broadcast(liveCast, width_proportion, height_proportion, session_pass);
 			}
 		}
 	}

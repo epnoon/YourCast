@@ -19,6 +19,9 @@ public class MainActivity extends FragmentActivity implements
 		WatchGameDialog.WatchGameDialogListener,
 		BroadcastGameDialog.BroadcastGameDialogListener{
 	private String TAG = "MainActivity";
+	
+	// Existing game intent
+	private Intent newGameIntent;
 
 	// Internet Connection detector
 	private ConnectionDetector cd;
@@ -164,11 +167,13 @@ public class MainActivity extends FragmentActivity implements
 	}
 	
 	@Override
-	public void onSelectedExistingGameClick(ExistingGameDialog dialog, int id, String title) {
-		Intent intent = new Intent(this, FieldActivity.class);
-		intent.putExtra("sessionTitle", title);
-		intent.putExtra("sessionNum", id);
-		startActivity(intent);
+	public void onSelectedExistingGameClick(ExistingGameDialog dialog, int id, String title, String password) {
+//		Intent intent = new Intent(this, FieldActivity.class);
+//		intent.putExtra("sessionTitle", title);
+//		intent.putExtra("sessionNum", id);
+//		intent.putExtra("password", password);
+//		startActivity(intent);
+		new EventListener().get_info(this, Integer.toString(id), password);
 	}
 	
 	@Override
@@ -178,12 +183,14 @@ public class MainActivity extends FragmentActivity implements
 		intent.putExtra("sessionNum", id);
 		startActivity(intent);*/
 	    if (id == 0) {
-		NewGameDialog newGameDialog = new NewGameDialog();
-		// Shows dialog.
-		newGameDialog.show(getFragmentManager(), "NewGameDialog");
+	    	NewGameDialog newGameDialog = new NewGameDialog();
+	    	// Shows dialog.
+			newGameDialog.show(getFragmentManager(), "NewGameDialog");
 	    } else if (id == 1) {
-		ExistingGameDialog existingGameDialog = new ExistingGameDialog();
-		existingGameDialog.show(getFragmentManager(), "existingGameDialog");
+	    	ExistingGameDialog existingGameDialog = new ExistingGameDialog();
+	    	// Get list of sessions before showing dialog
+	    	new EventListener().get_sessions(getFragmentManager(), existingGameDialog);
+	    	//existingGameDialog.show(getFragmentManager(), "existingGameDialog");
 	    } else throw new ClassCastException(this.toString() + " encounterd problem with option selecting");
 	}
 

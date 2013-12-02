@@ -12,32 +12,14 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
 
-public class ExistingGameDialog extends DialogFragment {
-    // private String gamesList;
-    private CharSequence[] items;
-    public int[] sessions;
+public class ExistingGameDialog extends GameListDialog {
     private ExistingGameDialogListener mListener;
-
-    public void setGames(String json_sessions) {
-	try {
-	    JSONObject json = new JSONObject(json_sessions);
-	    Iterator it = json.keys();
-	    sessions = new int[json.length()];
-	    items = new CharSequence[json.length()];
-	    int x = 0;
-	    while (it.hasNext()) {
-		String key = (String) it.next();
-		Log.d("MYMY", "Key " + key);
-		sessions[x] = json.getInt(key);
-		items[x++] = (CharSequence) key;
-	    }
-	} catch (JSONException e) {
-	    Log.d("MYMY", "Illegal JSON");
-	}
-
-    }
-
+    private View v;
+    
     // Override the Fragment.onAttach() method to instantiate this
     // NoticeDialogListener
     @Override
@@ -62,7 +44,10 @@ public class ExistingGameDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 	AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-	builder.setTitle(R.string.existing_games)
+	LayoutInflater inflater = getActivity().getLayoutInflater();
+	v = inflater.inflate(R.layout.dialog_game_password, null);
+	builder.setView(v)
+		.setTitle(R.string.existing_games)
 		.setItems(items, new DialogInterface.OnClickListener() {
 		    @Override
 		    public void onClick(DialogInterface dialog, int id) {
@@ -74,8 +59,10 @@ public class ExistingGameDialog extends DialogFragment {
 			Log.d("MYMY", "id" + Integer.toString(id));
 			int session_num = sessions[id];
 			String session_title = (String) items[id];
+			EditText session_pass = (EditText) v.findViewById(R.id.existing_pass);
+			String password = session_pass.getText().toString();
 			mListener.onSelectedExistingGameClick(ExistingGameDialog.this,
-				session_num, session_title);
+				session_num, session_title, password);
 		    }
 		})
 		.setNegativeButton(R.string.cancel,
@@ -89,6 +76,6 @@ public class ExistingGameDialog extends DialogFragment {
 
     public interface ExistingGameDialogListener {
 	public void onSelectedExistingGameClick(ExistingGameDialog dialog, int id,
-		String title);
+		String title, String password);
     }
 }

@@ -26,12 +26,14 @@ public class NewGameDialog extends DialogFragment {
 		EditText home_team = (EditText) v.findViewById(R.id.home_team);
 		EditText away_team = (EditText) v.findViewById(R.id.away_team);
 		EditText time = (EditText) v.findViewById(R.id.time);
+		EditText session_pass = (EditText) v.findViewById(R.id.session_pass);
 
 		JSONObject object = new JSONObject();
 		try {
 			object.put("sport", RUGBY); 
 			object.put("home team", home_team.getText().toString());
 			object.put("away team", away_team.getText().toString());
+			object.put("session pass", session_pass.getText().toString());
 			object.put("time", time.getText().toString());
 
 		} catch (JSONException e) {

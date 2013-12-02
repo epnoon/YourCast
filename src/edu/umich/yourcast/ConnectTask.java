@@ -40,15 +40,15 @@ public class ConnectTask extends AsyncTask<String, Boolean, Integer> {
 	JSONObject response; 
 	
 	// Data
-	String user_id; 
+	String password; 
 	EventListener mEventListener; 
 	
 	// Other. 
 
     String result = "";
 	
-	public ConnectTask(String uid, EventListener el) {
-		user_id = uid; 
+	public ConnectTask(String pw, EventListener el) {
+		password = pw; 
 		mEventListener = el; 
 	}
 	
@@ -62,9 +62,13 @@ public class ConnectTask extends AsyncTask<String, Boolean, Integer> {
 		
 		// Serialize data. 
 		try {
+			Log.d("MYMY", params[1]);
 			object.put("type", Constants.PTYPE_CREATE);
-			object.put("user_id", user_id);
+			object.put("password", params[1]);
 			object.put("msg", params[0]);
+			object.put("team1", params[2]);
+			object.put("team2", params[3]);
+			object.put("time", params[4]);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

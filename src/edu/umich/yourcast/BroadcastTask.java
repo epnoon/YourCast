@@ -34,7 +34,7 @@ public class BroadcastTask extends AsyncTask<String, Boolean, Integer> {
 	private String x_coord;
 	private String y_coord;
 	private int session;
-	private String user_id;
+	private String password;
 	private String event_msg;
 
 	// Helper JSON.
@@ -45,12 +45,12 @@ public class BroadcastTask extends AsyncTask<String, Boolean, Integer> {
 	// Other.
 	String result = "";
 
-	public BroadcastTask(int sess, String uid, String msg, String x, String y) {
+	public BroadcastTask(int sess, String pw, String msg, String x, String y) {
 		x_coord = x;
 		y_coord = y;
 		event_msg = msg;
 		session = sess;
-		user_id = uid;
+		password = pw;
 	}
 
 	protected Integer doInBackground(String... params) {
@@ -61,7 +61,7 @@ public class BroadcastTask extends AsyncTask<String, Boolean, Integer> {
 			eventobject.put("y", y_coord);
 			object.put("type", Constants.PTYPE_BROADCAST);
 			object.put("event", eventobject.toString());
-			object.put("user_id", user_id);
+			object.put("password", password);
 			object.put("session_num", session);
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -106,7 +106,7 @@ public class BroadcastTask extends AsyncTask<String, Boolean, Integer> {
 			if (response.getString("type").equals(Constants.PTYPE_CONFIRM)) {
 				Log.d("MYMY",
 						"Sent event for session" + Integer.toString(session)
-								+ "uid " + user_id);
+								+ "pw " + password);
 				
 				return 0;
 			}

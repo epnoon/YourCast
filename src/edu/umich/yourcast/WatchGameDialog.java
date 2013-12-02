@@ -14,31 +14,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 
-public class WatchGameDialog extends DialogFragment {
-	// private String gamesList;
-	private CharSequence[] items;
-	public int[] sessions;
+public class WatchGameDialog extends GameListDialog {
 	private WatchGameDialogListener mListener;
-
-	public void setGames(String json_sessions) {
-		try {
-			JSONObject json = new JSONObject(json_sessions);
-			Iterator it = json.keys();
-			sessions = new int[json.length()];
-			items = new CharSequence[json.length()];
-			int x=0;
-			while (it.hasNext()){
-				String key = (String) it.next();
-				Log.d("MYMY", "Key "+key);
-				sessions[x] = json.getInt(key);
-				items[x++] = (CharSequence) key;
-			}
-		}
-		catch (JSONException e){
-			Log.d("MYMY", "Illegal JSON");
-		}
-		
-	}
 	
 	// Override the Fragment.onAttach() method to instantiate this
 	// NoticeDialogListener

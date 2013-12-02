@@ -30,6 +30,7 @@ public class Constants {
 	public static final String PTYPE_EXCEPTION = "exception";
 	public static final String PTYPE_CONFIRM = "confirm_event";
 	public static final String PTYPE_GET_SESSIONS = "get_sessions";
+	public static final String PTYPE_GET_INFO = "get_info"; 
 	
 	public static final String POST_ADDRESS = "http://yourcast-server.appspot.com"; 
 	
@@ -40,5 +41,8 @@ public class Constants {
 	public static final String WUNDERGROUND_KEY = "58a14be9eb7b934a/"; 
 	public static final String WUNDERGROUND_GEOLOOKUP = "geolookup/q/"; 
 	public static final String WUNDERGROUND_JSON =".json";
-	public static final String WUNDERGROUND_CONDITIONS = "conditions/q/"; 
+	public static final String WUNDERGROUND_CONDITIONS = "conditions/q/";
+	
+	public static final String RUGBY = "edu.umich.yourcast.rugby";
+	
 }

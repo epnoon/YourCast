@@ -28,6 +28,18 @@
         android:inputType="textCapSentences" />
 
     <EditText
+        android:id="@+id/session_pass"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="4dp"
+        android:fontFamily="sans-serif"
+        android:hint="@string/session_pass"
+        android:inputType="textVisiblePassword" />
+
+    <EditText
         android:id="@+id/time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
