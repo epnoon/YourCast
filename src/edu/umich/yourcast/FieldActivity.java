@@ -31,7 +31,8 @@ public class FieldActivity extends Activity implements
 	SportEventTree eventTree;
 	EventListener connection;
 	public HashMap<String, String> game_info = new HashMap<String, String>();
-	String home_team, away_team, time, sport_name, session_pass, session_id;
+	String home_team, away_team, time, sport_name, 
+		session_pass, session_id, current_time = ""; 
 	ArrayList<String> currentWords;
 	int homeScore = 0, awayScore = 0;
 	SportTimer timer;
@@ -59,6 +60,7 @@ public class FieldActivity extends Activity implements
 			getJSON();
 			game_info.put("Home Team", home_team);
 			game_info.put("Away Team", away_team);
+			game_info.put("Game Score", "0 - 0"); 
 		}
 
 		// Get Shared Preferences.
@@ -103,7 +105,7 @@ public class FieldActivity extends Activity implements
 		fieldView = (RelativeLayout) findViewById(R.id.fieldlayout);
 
 		// Set timer.
-		timer = sport.getClock(time, clock, clockButton, game_info);
+		timer = sport.getClock(time, clock, clockButton, this);
 
 		// Set title.
 		opponents.setText(home_team + " vs. " + away_team);
@@ -126,6 +128,7 @@ public class FieldActivity extends Activity implements
 			public boolean onTouch(View v, MotionEvent event) {
 				touchX = event.getX();
 				touchY = event.getY();
+				current_time = timer.getCurrentTime() + "': "; 
 				return false;
 			}
 		});
@@ -234,7 +237,7 @@ public class FieldActivity extends Activity implements
 			params.topMargin = (int) touchY - diameter / 2;
 			fieldView.addView(iv, params);
 
-			String liveCast = eventTree.createText(currentWords);
+			String liveCast = current_time + eventTree.createText(currentWords);
 			if (eventTree.getHomePoints(currentWords) > 0
 					|| eventTree.getAwayPoints(currentWords) > 0) {
 				homeScore += eventTree.getHomePoints(currentWords);

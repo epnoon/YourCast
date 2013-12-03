@@ -1,6 +1,8 @@
 package edu.umich.yourcast;
 
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.TreeMap; 
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +22,20 @@ import android.widget.TextView;
 public class GameInfoDialog extends DialogFragment {
 
 	public final static String GAME_INFO = "edu.umich.yourcast.game_info";
+	public final static String[] ORDERING = {"Home Team", "Away Team", "Game Score", "Time"}; 
+	
+	class KeyComparator implements Comparator<String> { 
+	    public int compare(String a, String b) {
+	    	for (int i = 0; i < ORDERING.length; i++) {
+	    		if (a.equals(ORDERING[i])) {
+	    			return -1; 
+	    		} else if (b.equals(ORDERING[i])) {
+	    			return 1; 
+	    		}
+	    	}
+	    	return a.compareTo(b); 
+	    }
+	}
 
 	/**
 	 * Since Fragments are created/recreated using a default constructor, supply
@@ -37,7 +53,7 @@ public class GameInfoDialog extends DialogFragment {
 		return f;
 	}
 
-	private HashMap<String, String> game_info = new HashMap<String, String>();
+	private TreeMap<String, String> game_info = new TreeMap<String, String>(new KeyComparator());
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -47,7 +63,8 @@ public class GameInfoDialog extends DialogFragment {
 		JSONObject object;
 		try {
 		    	object = new JSONObject(getArguments().getString(GAME_INFO));
-		    	game_info = JsonHelper.toMap(object);
+		    	HashMap<String, String> hash_map = JsonHelper.toMap(object);
+		    	game_info.putAll(hash_map); 
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -18,8 +18,8 @@ public class RugbySport extends Sport {
 	}
 
 	@Override
-	public RugbyTimer getClock(String time, TextView t, ImageView i, HashMap<String, String> g) {
-		return new RugbyTimer(time, t, i, g); 
+	public RugbyTimer getClock(String time, TextView t, ImageView i, FieldActivity f) {
+		return new RugbyTimer(time, t, i, f); 
 	}
 
 	@Override

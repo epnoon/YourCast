@@ -23,8 +23,7 @@ public class WeatherStation extends AsyncTask<String, String, Integer> {
 	// Connection stuff.
 	private HttpClient httpclient = new DefaultHttpClient();
 	private HttpResponse httpresponse;
-	private String url = "", weather;
-	private int wind, temp;
+	private String url = "";
 
 	// Helper JSON.
 	JSONObject current_observation;
@@ -47,6 +46,7 @@ public class WeatherStation extends AsyncTask<String, String, Integer> {
 
 	@Override
 	protected Integer doInBackground(String... params) {
+		if (location == null)  { return -1; }
 		url += Constants.WUNDERGROUND_BASE + Constants.WUNDERGROUND_KEY
 				+ Constants.WUNDERGROUND_CONDITIONS
 				+ String.valueOf(location.getLatitude()) + ","
@@ -82,6 +82,8 @@ public class WeatherStation extends AsyncTask<String, String, Integer> {
 	protected void onPostExecute(Integer result) {
 		if (result == 0) {
 			mWeather.showWeather(); 
+		} else {
+			Log.d(TAG, "No location"); 
 		}
 	}
 

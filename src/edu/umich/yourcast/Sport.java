@@ -17,5 +17,5 @@ public abstract class Sport {
 	
 	abstract public SportEventTree getSportEventTree(String home_team, String away_team); 
 	
-	abstract public RugbyTimer getClock(String time, TextView t, ImageView i, HashMap<String, String> g); 
+	abstract public RugbyTimer getClock(String time, TextView t, ImageView i, FieldActivity f); 
 }
