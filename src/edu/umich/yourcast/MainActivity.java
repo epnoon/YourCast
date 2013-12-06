@@ -1,5 +1,6 @@
 package edu.umich.yourcast;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
@@ -22,9 +23,6 @@ public class MainActivity extends FragmentActivity implements
 
 	// Existing game intent
 	private Intent newGameIntent;
-
-	// Internet Connection detector
-	private ConnectionDetector cd;
 
 	// Alert Dialog Manager
 	AlertDialogManager alert = new AlertDialogManager();
@@ -50,12 +48,11 @@ public class MainActivity extends FragmentActivity implements
 				.permitAll().build();
 		StrictMode.setThreadPolicy(policy);
 
-		cd = new ConnectionDetector(getApplicationContext());
 		mSharedPreferences = getApplicationContext().getSharedPreferences(
 				"TwitterLogin", MODE_PRIVATE);
 
 		// Check Internet and keys.
-		doChecks();
+		doChecks(MainActivity.this);
 
 		getPreferences();
 		Log.d(TAG, String.valueOf(logged_in));
@@ -79,6 +76,8 @@ public class MainActivity extends FragmentActivity implements
 		broadcastGame.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
+				// Check Internet and keys.
+				doChecks(MainActivity.this);
 				broadcastGameButtonClick(view);
 			}
 		});
@@ -86,6 +85,8 @@ public class MainActivity extends FragmentActivity implements
 		watchGame.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
+				// Check Internet and keys.
+				doChecks(MainActivity.this);
 				watchGameButtonClick(view);
 			}
 		});
@@ -206,25 +207,16 @@ public class MainActivity extends FragmentActivity implements
 					+ " encounterd problem with option selecting");
 	}
 
-	public void doChecks() {
+	public static void doChecks(Context context) {
 		// Check if Internet present
+		ConnectionDetector cd = new ConnectionDetector(context);
 		if (!cd.isConnectingToInternet()) {
 			// Internet Connection is not present
-			alert.showAlertDialog(MainActivity.this,
+			(new AlertDialogManager()).showAlertDialog(context,
 					"Internet Connection Error",
-					"Please connect to working Internet connection", false);
+					"Unable to find an internet connection. This application need internet", false);
 			// stop executing code by return
-			return;
-		}
-
-		// Check if twitter keys are set
-		if (Constants.TWITTER_CONSUMER_KEY.trim().length() == 0
-				|| Constants.TWITTER_CONSUMER_SECRET.trim().length() == 0) {
-			// Internet Connection is not present
-			alert.showAlertDialog(MainActivity.this, "Twitter oAuth tokens",
-					"Please set your twitter oauth tokens first!", false);
-			// stop executing code by return
-			return;
+			return; 
 		}
 	}
 

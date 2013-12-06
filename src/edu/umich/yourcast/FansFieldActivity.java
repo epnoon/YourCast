@@ -37,6 +37,7 @@ public class FansFieldActivity extends Activity {
 	ImageView iv;
 	RelativeLayout.LayoutParams params;
 	TextView textview;
+	private View oldView = null; 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -125,8 +126,11 @@ public class FansFieldActivity extends Activity {
 
 		this.runOnUiThread(new Runnable() {
 			public void run() {
-				fieldView.removeAllViews();
+				if (oldView != null) {
+					fieldView.removeView(oldView); 
+				}
 				fieldView.addView(iv, params);
+				oldView = iv; 
 			}
 		});
 	}

@@ -1,7 +1,5 @@
 package edu.umich.yourcast;
 
-import java.util.HashMap;
-
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
