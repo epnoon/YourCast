@@ -11,7 +11,7 @@ public class RugbyTimer extends SportTimer {
 	ImageView imagebutton; 
 	TextView textview; 		
 	private int total_time = 0;
-	private long MINUTE = 1000; 
+	private long MINUTE = 60000; 
 	private long total, interval = MINUTE;
 	STimer timer;
 	boolean first_half = true, half_time = false, full_time = false, game_done = false;  

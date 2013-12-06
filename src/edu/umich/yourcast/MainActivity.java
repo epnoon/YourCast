@@ -17,9 +17,9 @@ public class MainActivity extends FragmentActivity implements
 		NewGameDialog.NewGameDialogListener,
 		ExistingGameDialog.ExistingGameDialogListener,
 		WatchGameDialog.WatchGameDialogListener,
-		BroadcastGameDialog.BroadcastGameDialogListener{
+		BroadcastGameDialog.BroadcastGameDialogListener {
 	private String TAG = "MainActivity";
-	
+
 	// Existing game intent
 	private Intent newGameIntent;
 
@@ -95,7 +95,7 @@ public class MainActivity extends FragmentActivity implements
 			public void onClick(View view) {
 				goToSettings();
 			}
-		}); 
+		});
 	}
 
 	private void goToSettings() {
@@ -130,19 +130,18 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	public void broadcastGameButtonClick(View view) {
-	    BroadcastGameDialog dialog = new BroadcastGameDialog();
-
-	    // Shows dialog.
-	    dialog.show(getFragmentManager(), "BroadcastGameDialog");
-	}
-	/*
-	public void newGameButtonClick(View view) {
-		NewGameDialog dialog = new NewGameDialog();
+		BroadcastGameDialog dialog = new BroadcastGameDialog();
 
 		// Shows dialog.
-		dialog.show(getFragmentManager(), "NewGameDialog");
+		dialog.show(getFragmentManager(), "BroadcastGameDialog");
 	}
-	*/
+
+	/*
+	 * public void newGameButtonClick(View view) { NewGameDialog dialog = new
+	 * NewGameDialog();
+	 * 
+	 * // Shows dialog. dialog.show(getFragmentManager(), "NewGameDialog"); }
+	 */
 	public void watchGameButtonClick(View view) {
 		WatchGameDialog dialog = new WatchGameDialog();
 
@@ -152,46 +151,59 @@ public class MainActivity extends FragmentActivity implements
 
 	@Override
 	public void onDialogPositiveClick(NewGameDialog dialog) {
-		Intent intent = new Intent(this, FieldActivity.class);
-		intent.putExtra(Constants.MATCH_INFO, dialog.getMatchInfo());
-		startActivity(intent);
+		if (!dialog.isAFieldEmpty()) {
+			Intent intent = new Intent(this, FieldActivity.class);
+			intent.putExtra(Constants.MATCH_INFO, dialog.getMatchInfo());
+			startActivity(intent);
+		} else {
+			alert.showAlertDialog(MainActivity.this,
+					"Empty Fields",
+					"Please fill out all fields in the new game form", false);
+		}
 	}
 
 	@Override
-	public void onSelectedGameClick(WatchGameDialog dialog, String game_info, int session_num, String session_title) {
+	public void onSelectedGameClick(WatchGameDialog dialog, String game_info,
+			int session_num, String session_title) {
 		Intent intent = new Intent(this, FansFieldActivity.class);
 		intent.putExtra(Constants.GAME_INFO, game_info);
 		intent.putExtra("sessionNum", session_num);
 		intent.putExtra("sessionTitle", session_title);
 		startActivity(intent);
 	}
-	
+
 	@Override
-	public void onSelectedExistingGameClick(ExistingGameDialog dialog, int id, String title, String password) {
-//		Intent intent = new Intent(this, FieldActivity.class);
-//		intent.putExtra("sessionTitle", title);
-//		intent.putExtra("sessionNum", id);
-//		intent.putExtra("password", password);
-//		startActivity(intent);
+	public void onSelectedExistingGameClick(ExistingGameDialog dialog, int id,
+			String title, String password) {
+		// Intent intent = new Intent(this, FieldActivity.class);
+		// intent.putExtra("sessionTitle", title);
+		// intent.putExtra("sessionNum", id);
+		// intent.putExtra("password", password);
+		// startActivity(intent);
 		new EventListener().get_info(this, Integer.toString(id), password);
 	}
-	
+
 	@Override
 	public void onOptionClick(BroadcastGameDialog dialog, int id) {
-		/*Intent intent = new Intent(this, FansFieldActivity.class);
-		intent.putExtra("sessionTitle", title);
-		intent.putExtra("sessionNum", id);
-		startActivity(intent);*/
-	    if (id == 0) {
-	    	NewGameDialog newGameDialog = new NewGameDialog();
-	    	// Shows dialog.
+		/*
+		 * Intent intent = new Intent(this, FansFieldActivity.class);
+		 * intent.putExtra("sessionTitle", title); intent.putExtra("sessionNum",
+		 * id); startActivity(intent);
+		 */
+		if (id == 0) {
+			NewGameDialog newGameDialog = new NewGameDialog();
+			// Shows dialog.
 			newGameDialog.show(getFragmentManager(), "NewGameDialog");
-	    } else if (id == 1) {
-	    	ExistingGameDialog existingGameDialog = new ExistingGameDialog();
-	    	// Get list of sessions before showing dialog
-	    	new EventListener().get_sessions(getFragmentManager(), existingGameDialog);
-	    	//existingGameDialog.show(getFragmentManager(), "existingGameDialog");
-	    } else throw new ClassCastException(this.toString() + " encounterd problem with option selecting");
+		} else if (id == 1) {
+			ExistingGameDialog existingGameDialog = new ExistingGameDialog();
+			// Get list of sessions before showing dialog
+			new EventListener().get_sessions(getFragmentManager(),
+					existingGameDialog);
+			// existingGameDialog.show(getFragmentManager(),
+			// "existingGameDialog");
+		} else
+			throw new ClassCastException(this.toString()
+					+ " encounterd problem with option selecting");
 	}
 
 	public void doChecks() {

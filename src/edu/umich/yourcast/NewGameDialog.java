@@ -21,6 +21,22 @@ public class NewGameDialog extends DialogFragment {
 	private NewGameDialogListener mListener;
 
 	private View v;
+	
+	public boolean isAFieldEmpty() {
+		EditText home_team = (EditText) v.findViewById(R.id.home_team);
+		EditText away_team = (EditText) v.findViewById(R.id.away_team);
+		EditText time = (EditText) v.findViewById(R.id.time);
+		EditText session_pass = (EditText) v.findViewById(R.id.session_pass);
+		
+		if (home_team.getText().toString().equals("")
+				|| away_team.getText().toString().equals("") 
+				|| time.getText().toString().equals("")
+				|| session_pass.getText().toString().equals("")
+				) {
+			return true; 
+		}
+		return false; 
+	}
 
 	public String getMatchInfo() {
 		EditText home_team = (EditText) v.findViewById(R.id.home_team);

@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,26 +20,24 @@ import android.widget.TextView;
 
 public class FansFieldActivity extends Activity {
 	private class Locations {
-		public float eventx; 
-		public float eventy; 
+		public float eventx;
+		public float eventy;
 	}
-	
+
 	String TAG = "MYMYFansFieldActivity";
 
-	private String[] EVENTS = new String[] {};
 	private int session_num;
-	private String session_title; 
+	private String session_title;
 	private EventListener connection;
 	private static Timer pollTimer;
 	RelativeLayout fieldView;
-	private HashMap<Integer, Locations> locations = 
-			new HashMap<Integer, Locations>(); 
+	private HashMap<Integer, Locations> locations = new HashMap<Integer, Locations>();
 
-	// For adding dot. 
+	// For adding dot.
 	ImageView iv;
 	RelativeLayout.LayoutParams params;
-	TextView textview; 
-	
+	TextView textview;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -45,28 +46,28 @@ public class FansFieldActivity extends Activity {
 		// Get session number
 		Intent intent = getIntent();
 		session_num = intent.getIntExtra("sessionNum", -1);
-		session_title = intent.getStringExtra("sessionTitle"); 
+		session_title = intent.getStringExtra("sessionTitle");
 
 		Sport sport = new RugbySport();
-		
-		textview = (TextView) findViewById(R.id.fanstitlebar); 
-		textview.setText(session_title); 
+
+		textview = (TextView) findViewById(R.id.fanstitlebar);
+		textview.setText(session_title);
 
 		fieldView = (RelativeLayout) findViewById(R.id.fanfieldlayout);
 		fieldView.setBackgroundResource(sport.getRotatedPictureID());
 
 		ListView listview = (ListView) findViewById(R.id.listview);
-		listview.setClickable(true); 
+		listview.setClickable(true);
 		listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> adapter, View view, int position,
-					long id) {
+			public void onItemClick(AdapterView<?> adapter, View view,
+					int position, long id) {
 				// TODO Auto-generated method stub
-				showDot(position); 
-				Log.d(TAG, "position: " + String.valueOf(position)); 
-				Log.d(TAG, "id: " + String.valueOf(id)); 				
+				showDot(position);
+				Log.d(TAG, "position: " + String.valueOf(position));
+				Log.d(TAG, "id: " + String.valueOf(id));
 			}
-		}); 
+		});
 
 		connection = new EventListener(getApplicationContext(), listview, this);
 	}
@@ -92,17 +93,21 @@ public class FansFieldActivity extends Activity {
 	}
 
 	public void addDot(float eventx, float eventy, int position) {
-		Locations l = new Locations(); 
-		l.eventx = eventx; 
-		l.eventy = eventy; 
-		locations.put(position, l); 	
-		showDot(position); 
-	}	
-	
+			Locations l = new Locations();
+			l.eventx = eventx;
+			l.eventy = eventy;
+			locations.put(position, l);
+			showDot(position);
+	}
+
 	public void showDot(int position) {
 		// x is actually y.
 		// y is actually x.
-		Locations l = locations.get(position); 
+		Locations l = locations.get(position);
+		
+		if (l.eventx == 0 && l.eventy == 0) {
+			return; 
+		}
 
 		float layout_width = fieldView.getWidth();
 		float layout_height = fieldView.getHeight();
@@ -120,14 +125,24 @@ public class FansFieldActivity extends Activity {
 
 		this.runOnUiThread(new Runnable() {
 			public void run() {
-				fieldView.removeAllViews(); 
+				fieldView.removeAllViews();
 				fieldView.addView(iv, params);
 			}
 		});
 	}
-	
+
 	public void infoButtonClick(View view) {
-		GameInfoDialog dialog = GameInfoDialog.create(getIntent().getStringExtra(Constants.GAME_INFO));
+		JSONObject object = null; 
+		try {
+			object = new JSONObject(); 
+	    	object.put("Game", getIntent().getStringExtra("sessionTitle")); 
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		GameInfoDialog dialog = GameInfoDialog.create(object.toString());
 		dialog.show(getFragmentManager(), "GameInfoDialog");
 	}
 }
