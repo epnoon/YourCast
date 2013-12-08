@@ -110,6 +110,12 @@ public class PollTask extends AsyncTask<Integer, Boolean, Integer>{
 		// Show events. 
 		try {
 			if (response.getString("type").equals(Constants.PTYPE_EVENT)) {
+				
+				// Update match info
+				String gameInfoString = response.getString("game_info");
+				mActivity.set_game_info(gameInfoString);
+				
+				// Update game events
 				event_id = response.getInt("event_id");
 				if (event_id == old_size) { return 0; }
 				for (int x=0;x<100;x++) {

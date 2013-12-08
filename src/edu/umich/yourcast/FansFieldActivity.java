@@ -26,6 +26,7 @@ public class FansFieldActivity extends Activity {
 
 	String TAG = "MYMYFansFieldActivity";
 
+	private String game_info;
 	private int session_num;
 	private String session_title;
 	private EventListener connection;
@@ -92,6 +93,10 @@ public class FansFieldActivity extends Activity {
 			connection.poll(session_num, last_id);
 		}
 	}
+	
+	public void set_game_info(String info) {
+		this.game_info = info;
+	}
 
 	public void addDot(float eventx, float eventy, int position) {
 			Locations l = new Locations();
@@ -138,8 +143,7 @@ public class FansFieldActivity extends Activity {
 	public void infoButtonClick(View view) {
 		JSONObject object = null; 
 		try {
-			object = new JSONObject(); 
-	    	object.put("Game", getIntent().getStringExtra("sessionTitle")); 
+			object = new JSONObject(game_info);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

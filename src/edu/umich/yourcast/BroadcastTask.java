@@ -3,6 +3,7 @@ package edu.umich.yourcast;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.http.HttpEntity;
@@ -36,21 +37,31 @@ public class BroadcastTask extends AsyncTask<String, Boolean, Integer> {
 	private int session;
 	private String password;
 	private String event_msg;
+	private String game_info;
 
 	// Helper JSON.
 	JSONObject object = new JSONObject();
 	JSONObject eventobject = new JSONObject();
+	JSONObject infoobject = new JSONObject();
 	JSONObject response;
 
 	// Other.
 	String result = "";
 
-	public BroadcastTask(int sess, String pw, String msg, String x, String y) {
+	public BroadcastTask(int sess, String pw, String msg, String x, 
+			String y, HashMap<String, String> info) {
 		x_coord = x;
 		y_coord = y;
 		event_msg = msg;
 		session = sess;
 		password = pw;
+		try {
+			infoobject = JsonHelper.toJSON(info);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		game_info = infoobject.toString();
 	}
 
 	protected Integer doInBackground(String... params) {
@@ -60,6 +71,7 @@ public class BroadcastTask extends AsyncTask<String, Boolean, Integer> {
 			eventobject.put("x", x_coord);
 			eventobject.put("y", y_coord);
 			object.put("type", Constants.PTYPE_BROADCAST);
+			object.put("game_info", game_info);
 			object.put("event", eventobject.toString());
 			object.put("password", password);
 			object.put("session_num", session);

@@ -1,5 +1,7 @@
 package edu.umich.yourcast;
 
+import java.util.HashMap;
+
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -42,9 +44,9 @@ public class EventListener {
 	
 	// Interface Functions. 
 	
-	public int broadcast (String message, String x, String y, String pass) {
+	public int broadcast (String message, String x, String y, String pass, HashMap<String, String> info) {
 		try {
-			new BroadcastTask(session, pass, message, x, y).execute(message);
+			new BroadcastTask(session, pass, message, x, y, info).execute(message);
 			return 0;
 		}
 		catch (Exception e) {

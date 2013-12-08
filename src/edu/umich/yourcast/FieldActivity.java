@@ -261,7 +261,7 @@ public class FieldActivity extends Activity implements
 					.execute(liveCast);
 		}
 		if (yourcast_broadcast) {
-			connection.broadcast(liveCast, width, height, session_pass);
+			connection.broadcast(liveCast, width, height, session_pass, game_info);
 		}
 	}
 
