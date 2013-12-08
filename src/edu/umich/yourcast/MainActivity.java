@@ -21,9 +21,6 @@ public class MainActivity extends FragmentActivity implements
 		BroadcastGameDialog.BroadcastGameDialogListener {
 	private String TAG = "MainActivity";
 
-	// Existing game intent
-	private Intent newGameIntent;
-
 	// Alert Dialog Manager
 	AlertDialogManager alert = new AlertDialogManager();
 
